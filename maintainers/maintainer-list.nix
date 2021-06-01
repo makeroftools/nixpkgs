@@ -6280,6 +6280,12 @@
     githubId = 11810057;
     name = "Matt Snider";
   };
+  mattchrist = {
+    email = "nixpkgs-matt@christ.systems";
+    github = "mattchrist";
+    githubId = 952712;
+    name = "Matt Christ";
+  };
   matthewbauer = {
     email = "mjbauer95@gmail.com";
     github = "matthewbauer";
@@ -10018,6 +10024,12 @@
     github = "tex";
     githubId = 27386;
     name = "Milan Svoboda";
+  };
+  tfc = {
+    email = "jacek@galowicz.de";
+    github = "tfc";
+    githubId = 29044;
+    name = "Jacek Galowicz";
   };
   tg-x = {
     email = "*@tg-x.net";
