@@ -1417,6 +1417,8 @@ in {
 
   click-log = callPackage ../development/python-modules/click-log { };
 
+  click-option-group = callPackage ../development/python-modules/click-option-group { };
+
   click-plugins = callPackage ../development/python-modules/click-plugins { };
 
   click-spinner = callPackage ../development/python-modules/click-spinner { };
@@ -2193,6 +2195,8 @@ in {
 
   elementpath = callPackage ../development/python-modules/elementpath { };
 
+  elevate = callPackage ../development/python-modules/elevate { };
+
   eliot = callPackage ../development/python-modules/eliot { };
 
   elmax = callPackage ../development/python-modules/elmax { };
@@ -2677,6 +2681,8 @@ in {
   });
 
   gast = callPackage ../development/python-modules/gast { };
+
+  garages-amsterdam = callPackage ../development/python-modules/garages-amsterdam { };
 
   gcovr = callPackage ../development/python-modules/gcovr { };
 
@@ -3405,6 +3411,8 @@ in {
   ipdbplugin = callPackage ../development/python-modules/ipdbplugin { };
 
   ipfshttpclient = callPackage ../development/python-modules/ipfshttpclient { };
+
+  i-pi = callPackage ../development/python-modules/i-pi { };
 
   iptools = callPackage ../development/python-modules/iptools { };
 
@@ -4217,7 +4225,7 @@ in {
 
   mecab-python3 = callPackage ../development/python-modules/mecab-python3 { };
 
-  MechanicalSoup = callPackage ../development/python-modules/MechanicalSoup { };
+  mechanicalsoup = callPackage ../development/python-modules/mechanicalsoup { };
 
   mechanize = callPackage ../development/python-modules/mechanize { };
 
@@ -4297,6 +4305,8 @@ in {
   ;
 
   mitmproxy = callPackage ../development/python-modules/mitmproxy { };
+
+  mitogen = callPackage ../development/python-modules/mitogen { };
 
   mixpanel = callPackage ../development/python-modules/mixpanel { };
 
@@ -6222,6 +6232,22 @@ in {
 
   pyroute2 = callPackage ../development/python-modules/pyroute2 { };
 
+  pyroute2-core = callPackage ../development/python-modules/pyroute2-core { };
+
+  pyroute2-ethtool = callPackage ../development/python-modules/pyroute2-ethtool { };
+
+  pyroute2-ipdb = callPackage ../development/python-modules/pyroute2-ipdb { };
+
+  pyroute2-ipset = callPackage ../development/python-modules/pyroute2-ipset { };
+
+  pyroute2-ndb = callPackage ../development/python-modules/pyroute2-ndb { };
+
+  pyroute2-nftables = callPackage ../development/python-modules/pyroute2-nftables { };
+
+  pyroute2-nslink = callPackage ../development/python-modules/pyroute2-nslink { };
+
+  pyroute2-protocols = callPackage ../development/python-modules/pyroute2-protocols { };
+
   pyrr = callPackage ../development/python-modules/pyrr { };
 
   pyrsistent = callPackage ../development/python-modules/pyrsistent { };
@@ -7602,8 +7628,7 @@ in {
 
   setuptools-rust = callPackage ../development/python-modules/setuptools-rust { };
 
-  setuptools-scm = self.setuptools_scm; # added 2021-01-04
-  setuptools_scm = callPackage ../development/python-modules/setuptools_scm { };
+  setuptools-scm = callPackage ../development/python-modules/setuptools-scm { };
 
   setuptools-scm-git-archive = callPackage ../development/python-modules/setuptools-scm-git-archive { };
 
