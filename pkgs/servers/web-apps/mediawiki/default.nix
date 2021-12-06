@@ -1,12 +1,12 @@
-{ lib, stdenv, fetchurl, makeWrapper, writeText }:
+{ lib, stdenv, fetchurl, writeText }:
 
 stdenv.mkDerivation rec {
   pname = "mediawiki";
-  version = "1.35.2";
+  version = "1.37.0";
 
   src = with lib; fetchurl {
     url = "https://releases.wikimedia.org/mediawiki/${versions.majorMinor version}/${pname}-${version}.tar.gz";
-    sha256 = "07cch4j2lcncfjv71351c1fxh200p83g2ijb3c9x8rv6nzcmiymz";
+    sha256 = "sha256-3RrSJ8W7vIM9hRwBcn7ocGo55Kox4PSc5F5QJX75uX8=";
   };
 
   prePatch = ''
@@ -34,6 +34,6 @@ stdenv.mkDerivation rec {
     license = licenses.gpl2Plus;
     homepage = "https://www.mediawiki.org/";
     platforms = platforms.all;
-    maintainers = [ maintainers.redvers ];
+    maintainers = with maintainers; [ ];
   };
 }

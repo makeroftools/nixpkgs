@@ -1,20 +1,27 @@
-{ lib, fetchFromGitHub, python3Packages }:
+{ lib
+, cacert
+, fetchFromGitHub
+, python3Packages
+}:
 
-python3Packages.buildPythonApplication rec {
+let chia = python3Packages.buildPythonApplication rec {
   pname = "chia";
-  version = "1.1.5";
+  version = "1.2.11";
 
   src = fetchFromGitHub {
     owner = "Chia-Network";
     repo = "chia-blockchain";
     rev = version;
-    sha256 = "ZUxWOlJGQpeQCtWt0PSdcbMackHdeuNFkxHvYDPcU8Y=";
+    fetchSubmodules = true;
+    sha256 = "sha256-hRpZce8ydEsyq7htNfzlRSKPwMAOUurC3uiQpX6WiB8=";
   };
 
-  patches = [
-    # tweak version requirements to what's available in Nixpkgs
-    ./dependencies.patch
-  ];
+  postPatch = ''
+    substituteInPlace setup.py \
+      --replace "==" ">="
+
+    cp ${cacert}/etc/ssl/certs/ca-bundle.crt mozilla-ca/cacert.pem
+  '';
 
   nativeBuildInputs = [
     python3Packages.setuptools-scm
@@ -35,29 +42,43 @@ python3Packages.buildPythonApplication rec {
     clvm
     clvm-rs
     clvm-tools
+    colorama
     colorlog
     concurrent-log-handler
     cryptography
+    dnspythonchia
+    fasteners
     keyrings-cryptfile
     pyyaml
     setproctitle
     setuptools # needs pkg_resources at runtime
     sortedcontainers
+    watchdog
     websockets
   ];
 
-  checkInputs = [
-    python3Packages.pytestCheckHook
+  checkInputs = with python3Packages; [
+    pytestCheckHook
   ];
+
+  # Testsuite is expensive and non-deterministic, so it is available in
+  # passthru.tests instead.
+  doCheck = false;
 
   disabledTests = [
     "test_spend_through_n"
     "test_spend_zero_coin"
+    "test_default_cached_master_passphrase"
+    "test_using_legacy_keyring"
   ];
 
   preCheck = ''
     export HOME=`mktemp -d`
   '';
+
+  passthru.tests = {
+    chiaWithTests = chia.overrideAttrs (_: { doCheck = true; });
+  };
 
   meta = with lib; {
     homepage = "https://www.chia.net/";
@@ -66,4 +87,5 @@ python3Packages.buildPythonApplication rec {
     maintainers = teams.chia.members;
     platforms = platforms.all;
   };
-}
+};
+in chia

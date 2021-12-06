@@ -48,14 +48,13 @@ in
       default = false;
       description = ''
         Run workers for builds.sr.ht.
-        Perform manually on machine: `cd ${scfg.statePath}/images; docker build -t qemu -f qemu/Dockerfile .`
       '';
     };
 
     images = mkOption {
       type = types.attrsOf (types.attrsOf (types.attrsOf types.package));
       default = { };
-      example = lib.literalExample ''(let
+      example = lib.literalExpression ''(let
           # Pinning unstable to allow usage with flakes and limit rebuilds.
           pkgs_unstable = builtins.fetchGit {
               url = "https://github.com/NixOS/nixpkgs";
@@ -85,7 +84,7 @@ in
             (rev: archs:
               lib.attrsets.mapAttrsToList
                 (arch: image:
-                  pkgs.runCommandNoCC "buildsrht-images" { } ''
+                  pkgs.runCommand "buildsrht-images" { } ''
                     mkdir -p $out/${distro}/${rev}/${arch}
                     ln -s ${image}/*.qcow2 $out/${distro}/${rev}/${arch}/root.img.qcow2
                   '')
@@ -98,7 +97,7 @@ in
         "${pkgs.sourcehut.buildsrht}/lib/images"
       ];
     };
-    image_dir = pkgs.runCommandNoCC "builds.sr.ht-worker-images" { } ''
+    image_dir = pkgs.runCommand "builds.sr.ht-worker-images" { } ''
       mkdir -p $out/images
       cp -Lr ${image_dir_pre}/* $out/images
     '';
@@ -161,6 +160,21 @@ in
           partOf = [ "buildsrht.service" ];
           description = "builds.sr.ht worker service";
           path = [ pkgs.openssh pkgs.docker ];
+          preStart = let qemuPackage = pkgs.qemu_kvm;
+          in ''
+            if [[ "$(docker images -q qemu:latest 2> /dev/null)" == "" || "$(cat ${statePath}/docker-image-qemu 2> /dev/null || true)" != "${qemuPackage.version}" ]]; then
+              # Create and import qemu:latest image for docker
+              ${
+                pkgs.dockerTools.streamLayeredImage {
+                  name = "qemu";
+                  tag = "latest";
+                  contents = [ qemuPackage ];
+                }
+              } | docker load
+              # Mark down current package version
+              printf "%s" "${qemuPackage.version}" > ${statePath}/docker-image-qemu
+            fi
+          '';
           serviceConfig = {
             Type = "simple";
             User = user;

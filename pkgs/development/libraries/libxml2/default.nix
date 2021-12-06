@@ -1,8 +1,9 @@
-{ stdenv, lib, fetchurl
+{ stdenv, lib, fetchurl, fetchpatch
 , zlib, xz, libintl, python, gettext, ncurses, findXMLCatalogs
+, libiconv
 , pythonSupport ? enableShared && stdenv.buildPlatform == stdenv.hostPlatform
 , icuSupport ? false, icu ? null
-, enableShared ? stdenv.hostPlatform.libc != "msvcrt"
+, enableShared ? stdenv.hostPlatform.libc != "msvcrt" && !stdenv.hostPlatform.isStatic
 , enableStatic ? !enableShared
 }:
 
@@ -27,11 +28,20 @@ stdenv.mkDerivation rec {
     #   https://github.com/NixOS/nixpkgs/pull/63174
     #   https://github.com/NixOS/nixpkgs/pull/72342
     ./utf8-xmlErrorFuncHandler.patch
+
+    # Work around lxml API misuse.
+    # https://gitlab.gnome.org/GNOME/libxml2/issues/255
+    (fetchpatch {
+      url = "https://gitlab.gnome.org/GNOME/libxml2/commit/85b1792e37b131e7a51af98a37f92472e8de5f3f.patch";
+      sha256 = "epqlNs2S0Zczox3KyCB6R2aJKh87lXydlZ0x6tLHweE=";
+    })
   ];
 
   outputs = [ "bin" "dev" "out" "man" "doc" ]
     ++ lib.optional pythonSupport "py"
     ++ lib.optional (enableStatic && enableShared) "static";
+
+  strictDeps = true;
 
   buildInputs = lib.optional pythonSupport python
     ++ lib.optional (pythonSupport && python?isPy2 && python.isPy2) gettext
@@ -43,7 +53,9 @@ stdenv.mkDerivation rec {
     # RUNPATH for that, leading to undefined references for its users.
     ++ lib.optional stdenv.isFreeBSD xz;
 
-  propagatedBuildInputs = [ zlib findXMLCatalogs ] ++ lib.optional icuSupport icu;
+  propagatedBuildInputs = [ zlib findXMLCatalogs ]
+    ++ lib.optional stdenv.isDarwin libiconv
+    ++ lib.optional icuSupport icu;
 
   configureFlags = [
     "--exec_prefix=$dev"

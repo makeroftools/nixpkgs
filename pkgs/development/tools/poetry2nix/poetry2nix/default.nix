@@ -5,7 +5,7 @@
 }:
 let
   # Poetry2nix version
-  version = "1.17.0";
+  version = "1.21.0";
 
   inherit (poetryLib) isCompatible readTOML moduleName;
 
@@ -209,12 +209,12 @@ lib.makeScope pkgs.newScope (self: {
                   poetry-core = if __isBootstrap then null else poetryPkg.passthru.python.pkgs.poetry-core;
                   poetry = if __isBootstrap then null else poetryPkg;
 
-                  # The canonical name is setuptools-scm
-                  setuptools-scm = super.setuptools-scm;
-
                   __toPluginAble = toPluginAble self;
 
                   inherit (hooks) pipBuildHook removePathDependenciesHook poetry2nixFixupHook wheelUnpackHook;
+                } // lib.optionalAttrs (! super ? setuptools-scm) {
+                  # The canonical name is setuptools-scm
+                  setuptools-scm = super.setuptools_scm;
                 }
             )
             # Null out any filtered packages, we don't want python.pkgs from nixpkgs
@@ -338,6 +338,9 @@ lib.makeScope pkgs.newScope (self: {
                 py.buildEnv.override args)
             ) { inherit app; };
           };
+
+          # Extract position from explicitly passed attrs so meta.position won't point to poetry2nix internals
+          pos = builtins.unsafeGetAttrPos (lib.elemAt (lib.attrNames attrs) 0) attrs;
 
           meta = lib.optionalAttrs (lib.hasAttr "description" pyProject.tool.poetry)
             {

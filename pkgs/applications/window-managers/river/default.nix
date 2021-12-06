@@ -12,19 +12,20 @@
 , pixman
 , udev
 , libevdev
+, libinput
 , libX11
 , libGL
 }:
 
 stdenv.mkDerivation rec {
   pname = "river";
-  version = "unstable-2021-05-07";
+  version = "0.1.0";
 
   src = fetchFromGitHub {
     owner = "ifreund";
     repo = pname;
-    rev = "7ffa2f4b9e7abf7d152134f555373c2b63ccfc1d";
-    sha256 = "1z5qjid73lfn654f2k74nwgvpr88fpdfpbzhihybx9cyy1mqfz7j";
+    rev = "v${version}";
+    sha256 = "03pdgrcpj8db9s14249815z76dyjwwma8xv6p9hpw79flk6rk7v7";
     fetchSubmodules = true;
   };
 
@@ -33,11 +34,11 @@ stdenv.mkDerivation rec {
   buildInputs = [
     wayland-protocols
     wlroots
-    pixman
     libxkbcommon
     pixman
     udev
     libevdev
+    libinput
     libX11
     libGL
   ];
@@ -50,7 +51,7 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     runHook preInstall
-    zig build -Drelease-safe -Dtarget=${stdenv.hostPlatform.parsed.cpu.name}-native -Dxwayland -Dman-pages --prefix $out install
+    zig build -Drelease-safe -Dcpu=baseline -Dxwayland -Dman-pages --prefix $out install
     runHook postInstall
   '';
 

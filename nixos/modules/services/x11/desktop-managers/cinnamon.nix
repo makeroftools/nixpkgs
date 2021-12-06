@@ -26,7 +26,7 @@ in
       sessionPath = mkOption {
         default = [];
         type = types.listOf types.package;
-        example = literalExample "[ pkgs.gnome.gpaste ]";
+        example = literalExpression "[ pkgs.gnome.gpaste ]";
         description = ''
           Additional list of packages to be added to the session search path.
           Useful for GSettings-conditional autostart.
@@ -50,7 +50,7 @@ in
 
     environment.cinnamon.excludePackages = mkOption {
       default = [];
-      example = literalExample "[ pkgs.cinnamon.blueberry ]";
+      example = literalExpression "[ pkgs.cinnamon.blueberry ]";
       type = types.listOf types.package;
       description = "Which packages cinnamon should exclude from the default environment";
     };
@@ -198,8 +198,16 @@ in
 
       environment.systemPackages = (with pkgs // pkgs.gnome // pkgs.cinnamon; pkgs.gnome.removePackagesByName [
         # cinnamon team apps
+        bulky
         blueberry
         warpinator
+
+        # cinnamon xapps
+        xviewer
+        xreader
+        xed
+        xplayer
+        pix
 
         # external apps shipped with linux-mint
         hexchat

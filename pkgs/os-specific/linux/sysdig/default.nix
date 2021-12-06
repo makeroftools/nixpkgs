@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub, cmake, kernel, installShellFiles
+{ lib, stdenv, fetchFromGitHub, fetchpatch, cmake, kernel, installShellFiles
 , luajit, ncurses, perl, jsoncpp, libb64, openssl, curl, jq, gcc, elfutils, tbb, protobuf, grpc
 }:
 
@@ -13,6 +13,19 @@ stdenv.mkDerivation rec {
     rev = version;
     sha256 = "sha256-lYjMvxMIReANNwMr62u881Nugrs9piOaN3EmrvGzRns=";
   };
+
+  patches = [
+    # Fix pending upstream inclusion for ncurses-6.3 support:
+    #  https://github.com/draios/sysdig/pull/1810
+    (fetchpatch {
+      name = "ncurses-6.3.patch";
+      url = "https://github.com/draios/sysdig/commit/1e37fffe0337b8f8f8e0b5345db2f8631851c209.patch";
+      sha256 = "sha256-T+yC6iXQ3MY+ub0c+Hv+cC18PV8YlAOKB6YB1Hdm7Yc=";
+      # change 'a/userspace/sinspui' for 'a/userspace/libsinsp' to follow upstream rename.
+      stripLen = 3;
+      extraPrefix = "userspace/libsinsp/";
+    })
+  ];
 
   nativeBuildInputs = [ cmake perl installShellFiles ];
   buildInputs = [
@@ -31,7 +44,7 @@ stdenv.mkDerivation rec {
   NIX_CFLAGS_COMPILE = "-DluaL_reg=luaL_Reg -DluaL_getn(L,i)=((int)lua_objlen(L,i))";
 
   preConfigure = ''
-    cmakeFlagsArray+=(-DCMAKE_EXE_LINKER_FLAGS="-ltbb -lcurl")
+    cmakeFlagsArray+=(-DCMAKE_EXE_LINKER_FLAGS="-ltbb -lcurl -labsl_synchronization")
 
     export INSTALL_MOD_PATH="$out"
   '' + optionalString (kernel != null) ''

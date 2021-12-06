@@ -1,32 +1,57 @@
-{ stdenv, lib, fetchzip, pkg-config, meson, ninja, scdoc
+{ stdenv, lib, fetchFromGitea, pkg-config, meson, ninja, scdoc
 , freetype, fontconfig, pixman, tllist, check
-, withHarfBuzz ? true
-, harfbuzz
+# Text shaping methods to enable, empty list disables all text shaping.
+# See `availableShapingTypes` or upstream meson_options.txt for available types.
+, withShapingTypes ? [ "grapheme" "run" ]
+, harfbuzz, utf8proc
+, fcft # for passthru.tests
 }:
+
+let
+  # Needs to be reflect upstream meson_options.txt
+  availableShapingTypes = [
+    "grapheme"
+    "run"
+  ];
+
+  # Courtesy of sternenseemann and FRidh, commit c9a7fdfcfb420be8e0179214d0d91a34f5974c54
+  mesonFeatureFlag = opt: b: "-D${opt}=${if b then "enabled" else "disabled"}";
+in
 
 stdenv.mkDerivation rec {
   pname = "fcft";
-  version = "2.4.0";
+  version = "2.5.0";
 
-  src = fetchzip {
-    url = "https://codeberg.org/dnkl/fcft/archive/${version}.tar.gz";
-    sha256 = "0z1r0s5s3dr1g4f3ylxfcmy3xb0ax02rw9mg7z8hzh0gxazrpndx";
+  src = fetchFromGitea {
+    domain = "codeberg.org";
+    owner = "dnkl";
+    repo = "fcft";
+    rev = version;
+    sha256 = "0agqldh68hn898d3f6k99kjbz8had5j5k0jyvi71d4k9vhx8cy7c";
   };
 
+  depsBuildBuild = [ pkg-config ];
   nativeBuildInputs = [ pkg-config meson ninja scdoc ];
   buildInputs = [ freetype fontconfig pixman tllist ]
-    ++ lib.optional withHarfBuzz harfbuzz;
+    ++ lib.optionals (withShapingTypes != []) [ harfbuzz ]
+    ++ lib.optionals (builtins.elem "run" withShapingTypes) [ utf8proc ];
   checkInputs = [ check ];
 
-  mesonFlags = [
-    "--buildtype=release"
-    "-Dtext-shaping=${if withHarfBuzz then "enabled" else "disabled"}"
-  ];
+  mesonBuildType = "release";
+  mesonFlags = builtins.map (t:
+    mesonFeatureFlag "${t}-shaping" (lib.elem t withShapingTypes)
+  ) availableShapingTypes;
 
   doCheck = true;
 
+  passthru.tests = {
+    noShaping = fcft.override { withShapingTypes = []; };
+    onlyGraphemeShaping = fcft.override { withShapingTypes = [ "grapheme" ]; };
+  };
+
   meta = with lib; {
     homepage = "https://codeberg.org/dnkl/fcft";
+    changelog = "https://codeberg.org/dnkl/fcft/releases/tag/${version}";
     description = "Simple library for font loading and glyph rasterization";
     maintainers = with maintainers; [
       fionera

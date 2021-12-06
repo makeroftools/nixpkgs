@@ -1,4 +1,5 @@
 { lib
+, appdirs
 , buildPythonPackage
 , defusedxml
 , fetchFromGitHub
@@ -13,17 +14,18 @@
 , responses
 , restfly
 , semver
+, typing-extensions
 }:
 
 buildPythonPackage rec {
   pname = "pytenable";
-  version = "1.2.8";
+  version = "1.4.2";
 
   src = fetchFromGitHub {
     owner = "tenable";
     repo = "pyTenable";
     rev = version;
-    sha256 = "12x0w1c4blm73ixv07w90jkydl7d8dx5l27ih9vc1yv9v2zzb53k";
+    sha256 = "sha256-qljoJ+nYFVS5VHr/M4mITtO9Czuyb4HLzVjhprhyJIs=";
   };
 
   propagatedBuildInputs = [
@@ -31,6 +33,7 @@ buildPythonPackage rec {
   ];
 
   buildInputs = [
+    appdirs
     defusedxml
     marshmallow
     python-box
@@ -38,6 +41,7 @@ buildPythonPackage rec {
     requests
     requests-pkcs12
     restfly
+    typing-extensions
   ];
 
   checkInputs = [

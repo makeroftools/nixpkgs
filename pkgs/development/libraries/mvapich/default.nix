@@ -21,13 +21,12 @@ stdenv.mkDerivation rec {
     sha256 = "0jd28vy9ivl3rcpkxmhw73b6krzm0pd9jps8asw92wa00lm2z9mk";
   };
 
-  nativeBuildInputs = [ pkg-config bison makeWrapper ];
+  nativeBuildInputs = [ pkg-config bison makeWrapper gfortran ];
   propagatedBuildInputs = [ numactl rdma-core zlib opensm ];
   buildInputs = with lib; [
     numactl
     libxml2
     perl
-    gfortran
     openssh
     hwloc
   ] ++ optionals (network == "infiniband") [ rdma-core opensm ]
@@ -56,9 +55,9 @@ stdenv.mkDerivation rec {
     done
 
     # Ensure the default compilers are the ones mvapich was built with
-    substituteInPlace $out/bin/mpicc --replace 'CC="gcc"' 'CC=${stdenv.cc}/bin/gcc'
-    substituteInPlace $out/bin/mpicxx --replace 'CXX="g++"' 'CC=${stdenv.cc}/bin/g++'
-    substituteInPlace $out/bin/mpifort --replace 'FC="gfortran"' 'CC=${gfortran}/bin/gfortran'
+    substituteInPlace $out/bin/mpicc --replace 'CC="gcc"' 'CC=${stdenv.cc}/bin/cc'
+    substituteInPlace $out/bin/mpicxx --replace 'CXX="g++"' 'CXX=${stdenv.cc}/bin/c++'
+    substituteInPlace $out/bin/mpifort --replace 'FC="gfortran"' 'FC=${gfortran}/bin/gfortran'
   '';
 
   enableParallelBuilding = true;

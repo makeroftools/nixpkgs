@@ -19,12 +19,14 @@ let
   isCross = stdenv.hostPlatform != stdenv.buildPlatform;
 in stdenv.mkDerivation rec {
   pname = "poke";
-  version = "1.2";
+  version = "1.4";
 
   src = fetchurl {
     url = "mirror://gnu/${pname}/${pname}-${version}.tar.gz";
-    hash = "sha256-9hz42ltkwBoTWTc3JarRyiV/NcHJJp5NUN0GZBg932I=";
+    sha256 = "sha256-zgVN8pVgySEjATJwPuRJ/hMLbiWrA6psx5a7QBUGqiQ=";
   };
+
+  outputs = [ "out" "dev" "info" "lib" "man" ];
 
   postPatch = ''
     patchShebangs .
@@ -40,13 +42,15 @@ in stdenv.mkDerivation rec {
   ] ++ lib.optional guiSupport makeWrapper;
 
   buildInputs = [ boehmgc readline ]
-  ++ lib.optional guiSupport tk
+  ++ lib.optionals guiSupport [ tk tcl.tclPackageHook tcllib ]
   ++ lib.optional miSupport json_c
   ++ lib.optional nbdSupport libnbd
   ++ lib.optional textStylingSupport gettext
   ++ lib.optional (!isCross) dejagnu;
 
-  configureFlags = lib.optionals guiSupport [
+  configureFlags = [
+    "--datadir=${placeholder "lib"}/share"
+  ] ++ lib.optionals guiSupport [
     "--with-tcl=${tcl}/lib"
     "--with-tk=${tk}/lib"
     "--with-tkinclude=${tk.dev}/include"
@@ -57,9 +61,8 @@ in stdenv.mkDerivation rec {
   doCheck = !isCross;
   checkInputs = lib.optionals (!isCross) [ dejagnu ];
 
-  postFixup = lib.optionalString guiSupport ''
-    wrapProgram "$out/bin/poke-gui" \
-      --prefix TCLLIBPATH ' ' ${tcllib}/lib/tcllib${tcllib.version}
+  postInstall = ''
+    moveToOutput share/emacs "$out"
   '';
 
   meta = with lib; {

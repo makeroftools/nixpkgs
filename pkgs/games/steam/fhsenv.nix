@@ -98,6 +98,12 @@ in buildFHSUserEnv rec {
     xorg.libXfixes
     libGL
     libva
+    pipewire.lib
+
+    # steamwebhelper
+    harfbuzz
+    libthai
+    pango
 
     # Not formally in runtime but needed by some games
     at-spi2-atk
@@ -113,7 +119,7 @@ in buildFHSUserEnv rec {
     xorg.libpciaccess
     udev # shadow of the tomb raider
 
-    ## screeps dependencies
+    # screeps dependencies
     gtk3
     dbus
     zlib
@@ -122,7 +128,6 @@ in buildFHSUserEnv rec {
     cairo
     freetype
     gdk-pixbuf
-    pango
     fontconfig
 
     # friends options won't display "Launch Game" without it
@@ -135,7 +140,7 @@ in buildFHSUserEnv rec {
     libGLU
     libuuid
     libbsd
-    alsaLib
+    alsa-lib
 
     # Loop Hero
     libidn2
@@ -149,6 +154,7 @@ in buildFHSUserEnv rec {
 
     # dependencies for mesa drivers, needed inside pressure-vessel
     mesa.drivers
+    mesa.llvmPackages.llvm.lib
     vulkan-loader
     expat
     wayland
@@ -156,7 +162,6 @@ in buildFHSUserEnv rec {
     xorg.libXdamage
     xorg.libxshmfence
     xorg.libXxf86vm
-    llvm_11.lib
     libelf
   ] ++ (if (!nativeOnly) then [
     (steamPackages.steam-runtime-wrapped.override {
@@ -182,12 +187,11 @@ in buildFHSUserEnv rec {
     xorg.libICE
     gnome2.GConf
     freetype
-    (curl.override { gnutlsSupport = true; sslSupport = false; })
+    (curl.override { gnutlsSupport = true; opensslSupport = false; })
     nspr
     nss
     fontconfig
     cairo
-    pango
     expat
     dbus
     cups

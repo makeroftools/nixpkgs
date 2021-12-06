@@ -1,56 +1,69 @@
-{ lib, stdenv, graalvm11-ce, babashka, fetchurl, fetchFromGitHub }:
+{ lib, stdenv, buildGraalvmNativeImage, babashka, fetchurl, fetchFromGitHub, clojure, writeScript }:
 
-stdenv.mkDerivation rec {
+buildGraalvmNativeImage rec {
   pname = "clojure-lsp";
-  version = "2021.04.13-12.47.33";
+  version = "2021.11.02-15.24.47";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
     rev = version;
-    sha256 = "1la0d28pvp1fqnxp3scb2vawcblilwyx42djxn379vag403p1i2d";
+    sha256 = "sha256-PBbo8yx4g4SsViUA1jnwqF8q9Dfn3lrgK2CP026Bm4Q=";
   };
 
   jar = fetchurl {
     url = "https://github.com/clojure-lsp/clojure-lsp/releases/download/${version}/clojure-lsp.jar";
-    sha256 = "059gz7y2rzwdxpyqy80w4lghzgxi5lb4rxmks1721yq6k7ljjyqy";
+    sha256 = "sha256-k0mzibcLAspklCPE6f2qsUm9bwSvcJRgWecMBq7mpF0=";
   };
 
-  GRAALVM_HOME = graalvm11-ce;
-  CLOJURE_LSP_JAR = jar;
+  # https://github.com/clojure-lsp/clojure-lsp/blob/2021.11.02-15.24.47/graalvm/native-unix-compile.sh#L18-L27
+  DTLV_LIB_EXTRACT_DIR = "/tmp";
 
-  buildInputs = [ graalvm11-ce ];
-
-  buildPhase = with lib; ''
-    runHook preBuild
-
-    bash ./graalvm/native-unix-compile.sh
-
-    runHook postBuild
-  '';
-
-  installPhase = ''
-    runHook preInstall
-
-    install -Dm755 ./clojure-lsp $out/bin/clojure-lsp
-
-    runHook postInstall
-  '';
+  extraNativeImageBuildArgs = [
+    "-H:CLibraryPath=${DTLV_LIB_EXTRACT_DIR}"
+    "--no-fallback"
+    "--native-image-info"
+  ];
 
   doCheck = true;
   checkPhase = ''
     runHook preCheck
 
-    ${babashka}/bin/bb integration-test/run-all.clj ./clojure-lsp
+    export HOME="$(mktemp -d)"
+    ./${pname} --version | fgrep -q '${version}'
+    ${babashka}/bin/bb integration-test ./${pname}
 
     runHook postCheck
+  '';
+
+  passthru.updateScript = writeScript "update-clojure-lsp" ''
+    #!/usr/bin/env nix-shell
+    #!nix-shell -i bash -p curl common-updater-scripts gnused jq nix
+
+    set -eu -o pipefail
+
+    latest_version=$(curl -s https://api.github.com/repos/clojure-lsp/clojure-lsp/releases/latest | jq --raw-output .tag_name)
+
+    old_jar_hash=$(nix-instantiate --eval --strict -A "clojure-lsp.jar.drvAttrs.outputHash" | tr -d '"' | sed -re 's|[+]|\\&|g')
+
+    curl -o clojure-lsp.jar -sL https://github.com/clojure-lsp/clojure-lsp/releases/download/$latest_version/clojure-lsp.jar
+    new_jar_hash=$(nix-hash --flat --type sha256 clojure-lsp.jar | sed -re 's|[+]|\\&|g')
+
+    rm -f clojure-lsp.jar
+
+    nixFile=$(nix-instantiate --eval --strict -A "clojure-lsp.meta.position" | sed -re 's/^"(.*):[0-9]+"$/\1/')
+
+    sed -i "$nixFile" -re "s|\"$old_jar_hash\"|\"$new_jar_hash\"|"
+    update-source-version clojure-lsp "$latest_version"
   '';
 
   meta = with lib; {
     description = "Language Server Protocol (LSP) for Clojure";
     homepage = "https://github.com/clojure-lsp/clojure-lsp";
     license = licenses.mit;
-    maintainers = [ maintainers.ericdallo ];
-    platforms = graalvm11-ce.meta.platforms;
+    maintainers = with maintainers; [ ericdallo babariviere ];
+    # Depends on datalevin that is x86_64 only
+    # https://github.com/juji-io/datalevin/blob/bb7d9328f4739cddea5d272b5cd6d6dcb5345da6/native/src/java/datalevin/ni/Lib.java#L86-L102
+    broken = !stdenv.isx86_64;
   };
 }

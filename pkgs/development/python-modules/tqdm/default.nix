@@ -14,11 +14,11 @@
 
 buildPythonPackage rec {
   pname = "tqdm";
-  version = "4.60.0";
+  version = "4.62.3";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "ebdebdb95e3477ceea267decfc0784859aa3df3e27e22d23b83e9b272bf157ae";
+    sha256 = "d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d";
   };
 
   nativeBuildInputs = [
@@ -34,8 +34,8 @@ buildPythonPackage rec {
     rich
     tkinter
   ] ++
-    # pandas is not supported on i686
-    lib.optional (!stdenv.isi686) pandas;
+    # pandas is not supported on i686 or risc-v
+    lib.optional (!stdenv.isi686 && !stdenv.hostPlatform.isRiscV) pandas;
 
   # Remove performance testing.
   # Too sensitive for on Hydra.

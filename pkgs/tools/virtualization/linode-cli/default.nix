@@ -1,33 +1,36 @@
 { lib
-, buildPythonApplication
 , fetchFromGitHub
 , fetchurl
-, terminaltables
+, buildPythonApplication
 , colorclass
-, requests
-, pyyaml
-, setuptools
 , installShellFiles
+, pyyaml
+, requests
+, setuptools
+, terminaltables
 }:
 
 let
-
+  sha256 = "1kvlf9qcl0i7g24s9f2pj25msmlj0cjicjwrnnc65q8qkmk2br9q";
+  # specVersion taken from: https://www.linode.com/docs/api/openapi.yaml at `info.version`.
+  specVersion = "4.108.0";
+  specSha256 = "17n9wjd0hpkzc2bvsawdvl8hc5285r0n19xq59h4amqb2fhp676w";
   spec = fetchurl {
-    url = "https://raw.githubusercontent.com/linode/linode-api-docs/v4.89.0/openapi.yaml";
-    sha256 = "sha256-R7Dmq8ifGEjh47ftuoGrbymYBsPCj/ULz0j1OqJDcwY=";
+    url = "https://raw.githubusercontent.com/linode/linode-api-docs/v${specVersion}/openapi.yaml";
+    sha256 = specSha256;
   };
 
 in
 
 buildPythonApplication rec {
   pname = "linode-cli";
-  version = "5.0.1";
+  version = "5.12.0";
 
   src = fetchFromGitHub {
     owner = "linode";
     repo = pname;
     rev = version;
-    sha256 = "sha256-zelopRaHaDCnbYA/y7dNMBh70g0+wuc6t9LH/VLaUIk=";
+    inherit sha256;
   };
 
   # remove need for git history
@@ -37,11 +40,11 @@ buildPythonApplication rec {
   '';
 
   propagatedBuildInputs = [
-    terminaltables
     colorclass
-    requests
     pyyaml
+    requests
     setuptools
+    terminaltables
   ];
 
   postConfigure = ''
@@ -59,11 +62,12 @@ buildPythonApplication rec {
     installShellCompletion --cmd linode-cli --bash <($out/bin/linode-cli --skip-config completion bash)
   '';
 
-  meta = with lib; {
-    homepage = "https://github.com/linode/linode-cli";
-    description = "The Linode Command Line Interface";
-    license = licenses.bsd3;
-    maintainers = with maintainers; [ ryantm superherointj ];
-  };
+  passthru.updateScript = ./update.sh;
 
+  meta = with lib; {
+    description = "The Linode Command Line Interface";
+    homepage = "https://github.com/linode/linode-cli";
+    license = licenses.bsd3;
+    maintainers = with maintainers; [ ryantm ];
+  };
 }

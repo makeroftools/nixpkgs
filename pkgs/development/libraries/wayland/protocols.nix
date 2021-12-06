@@ -1,15 +1,29 @@
-{ lib, stdenv, fetchurl, wayland-scanner }:
+{ lib, stdenv, fetchurl
+, pkg-config
+, meson, ninja, wayland-scanner
+, python3, wayland
+}:
 
 stdenv.mkDerivation rec {
   pname = "wayland-protocols";
-  version = "1.21";
+  version = "1.23";
+
+  doCheck = stdenv.hostPlatform == stdenv.buildPlatform;
 
   src = fetchurl {
     url = "https://wayland.freedesktop.org/releases/${pname}-${version}.tar.xz";
-    sha256 = "1rfdlkzz67qsb955zqb8jbw3m22pl6ppvrvfq8bqiqcb5n24b6dr";
+    sha256 = "0xizccackgwszjhlq7jjiv2z2gwppljx0w32ga91bxlnby8z22kc";
   };
 
-  nativeBuildInputs = [ wayland-scanner ];
+  postPatch = lib.optionalString doCheck ''
+    patchShebangs tests/
+  '';
+
+  depsBuildBuild = [ pkg-config ];
+  nativeBuildInputs = [ meson ninja wayland-scanner ];
+  checkInputs = [ python3 wayland ];
+
+  mesonFlags = [ "-Dtests=${lib.boolToString doCheck}" ];
 
   meta = {
     description = "Wayland protocol extensions";

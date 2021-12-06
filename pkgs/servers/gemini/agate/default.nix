@@ -2,25 +2,18 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "agate";
-  version = "3.0.3";
+  version = "3.1.0";
 
   src = fetchFromGitHub {
     owner = "mbrubeck";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-0sh9OuX52kvhTt681uZesOUttrxH8ZMxn6mTILQDQuU=";
+    sha256 = "sha256-miIMz4Lk4R5So96Ceqe1Fl5ozpf47qWq0GgtKFDDCCA=";
   };
 
-  cargoSha256 = "sha256-JBmSa2sc/eor0bCcIMhGGLmcJN+wCloP0Ao9DBybQbc=";
+  cargoSha256 = "sha256-NZpqCl37dZUvXmn4Q1Pvbz3LSxk1s0s5x1CBO0POA/4=";
 
   buildInputs = lib.optionals stdenv.isDarwin [ libiconv Security ];
-
-  checkFlags = [
-    # Username and Password use the same ports and causes collision
-    # https://github.com/mbrubeck/agate/issues/50
-    "--skip username"
-    "--skip password"
-  ];
 
   doInstallCheck = true;
   installCheckPhase = ''
@@ -31,8 +24,8 @@ rustPlatform.buildRustPackage rec {
   '';
 
   meta = with lib; {
-    homepage = "https://proxy.vulpes.one/gemini/qwertqwefsday.eu/agate.gmi";
-    changelog = "https://proxy.vulpes.one/gemini/qwertqwefsday.eu/agate.gmi";
+    homepage = "https://github.com/mbrubeck/agate";
+    changelog = "https://github.com/mbrubeck/agate/blob/master/CHANGELOG.md";
     description = "Very simple server for the Gemini hypertext protocol";
     longDescription = ''
       Agate is a server for the Gemini network protocol, built with the Rust

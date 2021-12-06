@@ -1,8 +1,6 @@
 { lib, stdenv
 , fetchFromGitHub
-, fetchpatch
 , cmake
-, makeWrapper
 , qttools
 , darwin
 
@@ -13,7 +11,7 @@
 , libXtst
 , libargon2
 , libgcrypt
-, libgpgerror
+, libgpg-error
 , libsodium
 , libyubikey
 , pkg-config
@@ -43,13 +41,13 @@ with lib;
 
 stdenv.mkDerivation rec {
   pname = "keepassxc";
-  version = "2.6.4";
+  version = "2.6.6";
 
   src = fetchFromGitHub {
     owner = "keepassxreboot";
     repo = "keepassxc";
     rev = version;
-    sha256 = "02ajfkw818cmalvkl0kqvza85rgdgs59kw2v7b3c4v8kv00c41j3";
+    sha256 = "15rm3avdmc2x2n92zq6w1zbcranak4j6dds2sxmgdqi1ffc0a3ci";
   };
 
   NIX_CFLAGS_COMPILE = optionalString stdenv.cc.isClang [
@@ -92,17 +90,16 @@ stdenv.mkDerivation rec {
     runHook postCheck
   '';
 
-  nativeBuildInputs = [ cmake wrapQtAppsHook qttools pkg-config ];
+  nativeBuildInputs = [ asciidoctor cmake wrapQtAppsHook qttools pkg-config ];
 
   buildInputs = [
-    asciidoctor
     curl
     glibcLocales
     libXi
     libXtst
     libargon2
     libgcrypt
-    libgpgerror
+    libgpg-error
     libsodium
     libyubikey
     qrencode
@@ -117,11 +114,6 @@ stdenv.mkDerivation rec {
   ++ optional stdenv.isDarwin qtmacextras
   ++ optional (stdenv.isDarwin && withKeePassTouchID)
     darwin.apple_sdk.frameworks.LocalAuthentication;
-
-  preFixup = optionalString stdenv.isDarwin ''
-    # Make it work without Qt in PATH.
-    wrapQtApp $out/Applications/KeePassXC.app/Contents/MacOS/KeePassXC
-  '';
 
   passthru.tests = nixosTests.keepassxc;
 

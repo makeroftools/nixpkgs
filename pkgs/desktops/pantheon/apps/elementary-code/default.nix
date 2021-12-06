@@ -1,8 +1,7 @@
-{ lib, stdenv
+{ lib
+, stdenv
 , fetchFromGitHub
-, fetchpatch
 , nix-update-script
-, pantheon
 , pkg-config
 , meson
 , ninja
@@ -12,24 +11,25 @@
 , gtk3
 , granite
 , libgee
+, libhandy
 , elementary-icon-theme
 , appstream
 , libpeas
 , editorconfig-core-c
-, gtksourceview3
+, gtksourceview4
 , gtkspell3
 , libsoup
 , vte
 , webkitgtk
-, zeitgeist
 , ctags
 , libgit2-glib
 , wrapGAppsHook
+, polkit
 }:
 
 stdenv.mkDerivation rec {
   pname = "elementary-code";
-  version = "3.4.1";
+  version = "6.1.0";
 
   repoName = "code";
 
@@ -37,16 +37,8 @@ stdenv.mkDerivation rec {
     owner = "elementary";
     repo = repoName;
     rev = version;
-    sha256 = "sha256-4AEayj+K/lOW6jEYmvmdan1kTqqqLL1YzwcU7/3PH5U=";
+    sha256 = "sha256-AXmMcPj2hf33G5v3TUg+eZwaKOdVlRvoVXglMJFHRjw=";
   };
-
-  patches = [
-    # Fix build with latest Vala.
-    (fetchpatch {
-      url = "https://github.com/elementary/code/commit/c50580d3336296823da9a2c50b824f21fde50286.patch";
-      sha256 = "F+ZYlnZWYCU68G4oayLfbTnvSnTb4YA0zHVGD/Uf3KA=";
-    })
-  ];
 
   passthru = {
     updateScript = nix-update-script {
@@ -60,6 +52,7 @@ stdenv.mkDerivation rec {
     meson
     ninja
     pkg-config
+    polkit # needed for ITS rules
     python3
     vala
     wrapGAppsHook
@@ -71,15 +64,15 @@ stdenv.mkDerivation rec {
     elementary-icon-theme
     granite
     gtk3
-    gtksourceview3
+    gtksourceview4
     gtkspell3
     libgee
     libgit2-glib
+    libhandy
     libpeas
     libsoup
     vte
     webkitgtk
-    zeitgeist
   ];
 
   # install script fails with UnicodeDecodeError because of printing a fancy elipsis character
@@ -102,6 +95,7 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/elementary/code";
     license = licenses.gpl3Plus;
     platforms = platforms.linux;
-    maintainers = pantheon.maintainers;
+    maintainers = teams.pantheon.members;
+    mainProgram = "io.elementary.code";
   };
 }

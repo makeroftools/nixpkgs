@@ -2,70 +2,70 @@
 
 stdenv.mkDerivation rec {
   pname = "nordic";
-  version = "unstable-2021-05-21";
+  version = "2.1.0";
 
   srcs = [
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = pname;
-      rev = "7e4f95ddaa8d94a66ed11a3b939cbd10864f1610";
-      sha256 = "079gf8gxn1d2j44nhx4jzx2hz8hpsid7xwh414fjl3g2avb7n05a";
+      rev = "0112af91943b8819f7a1af9a508cda7fe3d74051";
+      sha256 = "sha256-ccOA5/jXTx20495NpTgVu7DvsjfTEULqL3IyJ+Pd/ug";
       name = "Nordic";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = pname;
-      rev = "0b4197e281ba306ac4918cabbd83003c38c0067d";
-      sha256 = "1w85i2fbils2ivwsa85g1asj2nx0p0cak840nyr58hdwky49ci5p";
+      rev = "b30d2c844cc6ef5d020308f1c02791de45b607a7";
+      sha256 = "sha256-g5yCCFXzipZLmUat+1r6QWHB7DWQvMKhMexHPV/DJHM";
       name = "Nordic-standard-buttons";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = pname;
-      rev = "aba3c78910de8a47950a0b2defb8022c615d91f6";
-      sha256 = "1746w0iahmdgw3kj1q2cswf12pf0ln7qq1grfz9sn8rjafzjchj8";
+      rev = "6d38d6af363528f42619f663e3ecd4c08dfd2411";
+      sha256 = "sha256-jaRiSE6yfTltzZ2vr8w4d+YtSz7REOcL7vOOhQvIMlQ";
       name = "Nordic-darker";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = pname;
-      rev = "9946dd747e1ea05782e084d2c2d94e2e4c7605ac";
-      sha256 = "0mz1l1h26zhv0pnsbs0rx0xrwrn2y8g3ik0aa8ww5f411vvzgfr5";
+      rev = "4142817c14c27b371d42796445bedc84dc94672c";
+      sha256 = "sha256-FAb1+EREcwYrfSxAl6LrPaJtkHMt67NV3bG87g1cFT4";
       name = "Nordic-darker-standard-buttons";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = pname;
-      rev = "5c0be5a783cd14af5c7647ca13d946c64e03561d";
-      sha256 = "0751z3b9s0ycrsha20jx8lhdgvggcl0rdgv975dpaiqqjqyd9z06";
+      rev = "2a91d6f3db70412b0a80ed33546fbe93075627d8";
+      sha256 = "sha256-Su+amS7moc2IDONNvqw3bjL6Q0WLJWzHu6WvfcVDcDY";
       name = "Nordic-bluish-accent";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = pname;
-      rev = "9cb8d9f786614579e59ec2c3dd9fd8dd9b56316e";
-      sha256 = "09s9y7waygrx3p6c0c4py0ywg2ihpdmx73xhw5f92rr5nhsvish7";
+      rev = "3ebd334f97d638fdc888b16d69851e3ee31131f2";
+      sha256 = "sha256-h0IXtWcdDvAEVi/1cLZF4Vacdl6VAY+5uo0LGPNe0bg";
       name = "Nordic-bluish-accent-standard-buttons";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "${pname}-polar";
-      rev = "69652db56e1721ac183cd57d21a801a09655a811";
-      sha256 = "0zjd4np11mjwmc1kh2n1ig77g4wq88s2yrmnga0gvw1lf44n3qn2";
+      rev = "803926882f8178c72b433466a377aaa33c5b372a";
+      sha256 = "sha256-G7Vu03PoFOEU9uxb5JiHR4Tr8qk47fPo7Gg7Vt9Zzns";
       name = "Nordic-Polar";
     })
 
     (fetchFromGitHub {
       owner = "EliverLara";
       repo = "${pname}-polar";
-      rev = "3a67c1a2308ba3e9ec5d82f4a3416f85b6085b08";
-      sha256 = "0gpg2izh4ay78j79vjp4svmi3qy9qaw0n6ai8zwm7p25dwm56fjy";
+      rev = "988cb8a16ece3901b8b0e7a5b86503400491cb1e";
+      sha256 = "sha256-Zx1mrzJm5o4wQwOR8ZU2OEcjD3/6UXwLrBYpMtCkQbg";
       name = "Nordic-Polar-standard-buttons";
     })
   ];
@@ -76,6 +76,7 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     runHook preInstall
+
     mkdir -p $out/share/themes
     cp -a Nordic* $out/share/themes
     rm -r $out/share/themes/*/.gitignore
@@ -88,13 +89,23 @@ stdenv.mkDerivation rec {
     rm -r $out/share/themes/*/gnome-shell/{extensions,*.scss}
     rm -r $out/share/themes/*/gtk-2.0/{assets.svg,assets.txt,links.fish,render-assets.sh}
     rm -r $out/share/themes/*/gtk-3.0/{apps,widgets,*.scss}
-    rm -r $out/share/themes/*/kde
     rm -r $out/share/themes/*/xfwm4/{assets,render_assets.fish}
+
+    # move kde related contents to appropriate directories
+    mkdir -p $out/share/{aurorae/themes,color-schemes,Kvantum,plasma,sddm/themes/Nordic}
+    mv -v $out/share/themes/Nordic/kde/aurorae/* $out/share/aurorae/themes/
+    mv -v $out/share/themes/Nordic/kde/colorschemes/* $out/share/color-schemes/
+    mv -v $out/share/themes/Nordic/kde/konsole $out/share/
+    mv -v $out/share/themes/Nordic/kde/kvantum/* $out/share/Kvantum/
+    mv -v $out/share/themes/Nordic/kde/plasma/look-and-feel $out/share/plasma/
+    mv -v $out/share/themes/Nordic/kde/sddm/* $out/share/sddm/themes/Nordic/
+    rm -rf $out/share/themes/Nordic/kde
+
     runHook postInstall
   '';
 
   meta = with lib; {
-    description = "Gtk themes using the Nord color pallete";
+    description = "Gtk and KDE themes using the Nord color pallete";
     homepage = "https://github.com/EliverLara/Nordic";
     license = licenses.gpl3Only;
     platforms = platforms.all;

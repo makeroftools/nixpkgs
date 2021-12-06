@@ -43,13 +43,14 @@ in
 
   options.console  = {
     font = mkOption {
-      type = types.str;
+      type = with types; either str path;
       default = "Lat2-Terminus16";
       example = "LatArCyrHeb-16";
       description = ''
         The font used for the virtual consoles.  Leave empty to use
         whatever the <command>setfont</command> program considers the
         default font.
+        Can be either a font name or a path to a PSF font file.
       '';
     };
 
@@ -115,7 +116,11 @@ in
     { console.keyMap = with config.services.xserver;
         mkIf cfg.useXkbConfig
           (pkgs.runCommand "xkb-console-keymap" { preferLocalBuild = true; } ''
-            '${pkgs.ckbcomp}/bin/ckbcomp' -model '${xkbModel}' -layout '${layout}' \
+            '${pkgs.buildPackages.ckbcomp}/bin/ckbcomp' \
+              ${optionalString (config.environment.sessionVariables ? XKB_CONFIG_ROOT)
+                "-I${config.environment.sessionVariables.XKB_CONFIG_ROOT}"
+              } \
+              -model '${xkbModel}' -layout '${layout}' \
               -option '${xkbOptions}' -variant '${xkbVariant}' > "$out"
           '');
     }

@@ -8,19 +8,19 @@
 , tox
 , requests
 , python-dateutil
-, websocket_client
+, websocket-client
 , ibm-cloud-sdk-core
 }:
 
 buildPythonPackage rec {
   pname = "ibm-watson";
-  version = "5.1.0";
+  version = "5.3.0";
 
   src = fetchFromGitHub {
     owner = "watson-developer-cloud";
     repo = "python-sdk";
     rev = "v${version}";
-    sha256 = "sha256:16llw7kybwndgf2ryrg5698v4j3rhrdx52lf3kdzhxdi0q3kmwdn";
+    sha256 = "0g63h7rf0710bxcsr115857bvz69sl2g5d13k5a7qi7hjh33bxrk";
   };
 
   checkInputs = [
@@ -34,14 +34,13 @@ buildPythonPackage rec {
   propagatedBuildInputs = [
     requests
     python-dateutil
-    websocket_client
+    websocket-client
     ibm-cloud-sdk-core
   ];
 
   postPatch = ''
     substituteInPlace setup.py \
-      --replace websocket-client==0.48.0 websocket-client>=0.48.0 \
-      --replace ibm_cloud_sdk_core==3.3.6 ibm_cloud_sdk_core>=3.3.6
+      --replace websocket-client==1.1.0 websocket-client>=1.1.0
   '';
 
   meta = with lib; {

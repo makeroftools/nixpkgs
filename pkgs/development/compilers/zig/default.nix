@@ -11,13 +11,13 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "zig";
-  version = "0.8.0";
+  version = "0.8.1";
 
   src = fetchFromGitHub {
     owner = "ziglang";
     repo = pname;
     rev = version;
-    hash = "sha256-bILjcKX8jPl2n1HRYvYRb7jJkobwqmSJ+hHXSn9n2ag=";
+    hash = "sha256-zMSOH8ZWcvzHRwOgGIbLO9Q6jf1P5QL5KCMD+frp+JA=";
   };
 
   nativeBuildInputs = [
@@ -37,6 +37,13 @@ stdenv.mkDerivation rec {
     export HOME=$TMPDIR;
   '';
 
+  doCheck = true;
+  checkPhase = ''
+    runHook preCheck
+    ./zig test --cache-dir "$TMPDIR" -I $src/test $src/test/behavior.zig
+    runHook postCheck
+  '';
+
   meta = with lib; {
     homepage = "https://ziglang.org/";
     description =
@@ -44,8 +51,7 @@ stdenv.mkDerivation rec {
     license = licenses.mit;
     maintainers = with maintainers; [ andrewrk AndersonTorres ];
     platforms = platforms.unix;
-    # See https://github.com/NixOS/nixpkgs/issues/86299
-    broken = stdenv.isDarwin;
+    broken = stdenv.isDarwin; # See https://github.com/NixOS/nixpkgs/issues/86299
   };
 }
-# TODO: checkPhase
+

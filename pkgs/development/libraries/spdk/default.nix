@@ -1,7 +1,6 @@
 { lib, stdenv
 , fetchurl
 , fetchFromGitHub
-, fetchpatch
 , ncurses
 , python3
 , cunit
@@ -15,14 +14,20 @@
 
 stdenv.mkDerivation rec {
   pname = "spdk";
-  version = "21.04";
+  version = "21.07";
 
   src = fetchFromGitHub {
     owner = "spdk";
     repo = "spdk";
     rev = "v${version}";
-    sha256 = "sha256-Xmmgojgtt1HwTqG/1ZOJVo1BcdAH0sheu40d73OJ68w=";
+    sha256 = "sha256-/hynuYVdzIfiHUUfuuOY8SBJ18DqJr2Fos2JjQQVvbg=";
   };
+
+  patches = [
+    # Backport of upstream patch for ncurses-6.3 support.
+    # Will be in next release after 21.10.
+    ./ncurses-6.3.patch
+  ];
 
   nativeBuildInputs = [
     python3
@@ -35,6 +40,8 @@ stdenv.mkDerivation rec {
   postPatch = ''
     patchShebangs .
   '';
+
+  enableParallelBuilding = true;
 
   configureFlags = [ "--with-dpdk=${dpdk}" ];
 

@@ -5,11 +5,11 @@
 
 stdenv.mkDerivation rec {
   pname = "pdns-recursor";
-  version = "4.5.1";
+  version = "4.5.7";
 
   src = fetchurl {
     url = "https://downloads.powerdns.com/releases/pdns-recursor-${version}.tar.bz2";
-    sha256 = "0yaf25jg3gfsi9c9rnxz1ywy3b563plv33aibxrq79iqwk8a289p";
+    sha256 = "1avvs1wpck0rahx80xnnaw94hdrfbhi1jdvgg1zpac26mzab4kdd";
   };
 
   nativeBuildInputs = [ pkg-config ];
@@ -36,7 +36,7 @@ stdenv.mkDerivation rec {
     badPlatforms = [
       "i686-linux"  # a 64-bit time_t is needed
     ];
-    license = licenses.gpl2;
+    license = licenses.gpl2Only;
     maintainers = with maintainers; [ rnhmjoj ];
   };
 }

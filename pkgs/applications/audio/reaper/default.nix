@@ -3,7 +3,7 @@
 , autoPatchelfHook
 , makeWrapper
 
-, alsaLib
+, alsa-lib
 , gtk3
 , lame
 , ffmpeg
@@ -17,11 +17,14 @@
 
 stdenv.mkDerivation rec {
   pname = "reaper";
-  version = "6.28";
+  version = "6.38";
 
   src = fetchurl {
-    url = "https://www.reaper.fm/files/${lib.versions.major version}.x/reaper${builtins.replaceStrings ["."] [""] version}_linux_x86_64.tar.xz";
-    hash = "sha256-38HSjR+rQWPzMOjq1abLn/MP3DCz5YzBg0v2kBsQmR4=";
+    url = "https://www.reaper.fm/files/${lib.versions.major version}.x/reaper${builtins.replaceStrings ["."] [""] version}_linux_${stdenv.hostPlatform.qemuArch}.tar.xz";
+    hash = {
+      x86_64-linux = "sha256-K5EnrmzP8pyW9dR1fbMzkPzpS6aHm8JF1+m3afnH4rU=";
+      aarch64-linux = "sha256-6wNWDXjQNyfU2l9Xi9JtmAuoKtHuIY5cvNMjYkwh2Sk=";
+    }.${stdenv.hostPlatform.system};
   };
 
   nativeBuildInputs = [
@@ -32,7 +35,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    alsaLib
+    alsa-lib
     stdenv.cc.cc.lib # reaper and libSwell need libstdc++.so.6
     gtk3
   ];
@@ -74,7 +77,7 @@ stdenv.mkDerivation rec {
     description = "Digital audio workstation";
     homepage = "https://www.reaper.fm/";
     license = licenses.unfree;
-    platforms = [ "x86_64-linux" ];
-    maintainers = with maintainers; [ jfrankenau ilian ];
+    platforms = [ "x86_64-linux" "aarch64-linux" ];
+    maintainers = with maintainers; [ jfrankenau ilian orivej ];
   };
 }

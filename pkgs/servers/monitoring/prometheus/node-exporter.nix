@@ -2,30 +2,32 @@
 
 buildGoModule rec {
   pname = "node_exporter";
-  version = "1.1.2";
+  version = "1.3.0";
   rev = "v${version}";
 
   src = fetchFromGitHub {
     inherit rev;
     owner = "prometheus";
     repo = "node_exporter";
-    sha256 = "1kz52zhsm0xx63vczzplj15hli4i22qfxl08grb7m50bqk651j1n";
+    sha256 = "sha256-gfRnlKq8F4gfea0JOzRqQDDFVJpNSfUX/cvFE/rUU1Q=";
   };
 
-  vendorSha256 = "05lr2ln87902bwamw4l3rrk2j9sdgv1pcvxyvzbga64rymi9dmjb";
+  vendorSha256 = "sha256-nAvODyy+PfkGFAaq+3hBhQaPji5GUMU7N8xcgbGQMeI=";
 
   # FIXME: tests fail due to read-only nix store
   doCheck = false;
 
   excludedPackages = [ "docs/node-mixin" ];
 
-  buildFlagsArray = let
-    goPackagePath = "github.com/prometheus/node_exporter";
-  in ''
-    -ldflags=
-        -X ${goPackagePath}/vendor/github.com/prometheus/common/version.Version=${version}
-        -X ${goPackagePath}/vendor/github.com/prometheus/common/version.Revision=${rev}
-  '';
+  ldflags = [
+    "-s"
+    "-w"
+    "-X github.com/prometheus/common/version.Version=${version}"
+    "-X github.com/prometheus/common/version.Revision=${rev}"
+    "-X github.com/prometheus/common/version.Branch=unknown"
+    "-X github.com/prometheus/common/version.BuildUser=nix@nixpkgs"
+    "-X github.com/prometheus/common/version.BuildDate=unknown"
+  ];
 
   passthru.tests = { inherit (nixosTests.prometheus-exporters) node; };
 
@@ -34,6 +36,5 @@ buildGoModule rec {
     homepage = "https://github.com/prometheus/node_exporter";
     license = licenses.asl20;
     maintainers = with maintainers; [ benley fpletz globin Frostman ];
-    platforms = platforms.unix;
   };
 }

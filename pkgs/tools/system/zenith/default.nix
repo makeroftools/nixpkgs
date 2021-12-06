@@ -1,4 +1,11 @@
-{ lib, stdenv, rustPlatform, fetchFromGitHub, IOKit }:
+{ lib
+, stdenv
+, rustPlatform
+, fetchFromGitHub
+, IOKit
+, nvidiaSupport ? false
+, makeWrapper
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "zenith";
@@ -13,10 +20,19 @@ rustPlatform.buildRustPackage rec {
 
   cargoSha256 = "0c2mk2bcz4qjyqmf11yqhnhy4pqxr77b3c1gvr5jfmjshx4ff7v2";
 
+  nativeBuildInputs = lib.optional nvidiaSupport makeWrapper;
   buildInputs = lib.optionals stdenv.isDarwin [ IOKit ];
 
+  buildFeatures = lib.optional nvidiaSupport "nvidia";
+
+  postInstall = lib.optionalString nvidiaSupport ''
+    wrapProgram $out/bin/zenith \
+      --suffix LD_LIBRARY_PATH : "/run/opengl-driver/lib"
+  '';
+
   meta = with lib; {
-    description = "Sort of like top or htop but with zoom-able charts, network, and disk usage";
+    description = "Sort of like top or htop but with zoom-able charts, network, and disk usage"
+      + lib.optionalString nvidiaSupport ", and NVIDIA GPU usage";
     homepage = "https://github.com/bvaisvil/zenith";
     license = licenses.mit;
     maintainers = with maintainers; [ bbigras ];

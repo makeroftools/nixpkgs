@@ -5,17 +5,12 @@
 
 buildPythonPackage rec {
   pname = "celery";
-  version = "5.0.5";
+  version = "5.2.0";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "f4efebe6f8629b0da2b8e529424de376494f5b7a743c321c8a2ddc2b1414921c";
+    sha256 = "4d858a8fe53c07a9f0cbf8cf1da28e8abe5464d0aba5713bf83908e74277734b";
   };
-
-  postPatch = ''
-    substituteInPlace requirements/test.txt \
-      --replace "moto==1.3.7" moto
-  '';
 
   propagatedBuildInputs = [ billiard click click-didyoumean click-plugins click-repl kombu pytz vine ];
 

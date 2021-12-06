@@ -1,6 +1,6 @@
 { lib, stdenv, fetchurl, dpkg, makeWrapper, buildFHSUserEnv
 , gtk3, gdk-pixbuf, cairo, libjpeg_original, glib, pango, libGLU
-, libGL, nvidia_cg_toolkit, zlib, openssl, libuuid , alsaLib, udev, libjack2
+, libGL, nvidia_cg_toolkit, zlib, openssl, libuuid , alsa-lib, udev, libjack2
 }:
 let
   fullPath = lib.makeLibraryPath [
@@ -17,7 +17,7 @@ let
     zlib
     openssl
     libuuid
-    alsaLib
+    alsa-lib
     libjack2
     udev
   ];
@@ -38,7 +38,6 @@ let
     nativeBuildInputs = [ makeWrapper ];
     buildInputs = [ dpkg ];
 
-    phases = [ "unpackPhase" "installPhase" ];
     unpackPhase = "dpkg-deb -x ${src} ./";
 
     installPhase = ''

@@ -15,31 +15,26 @@
 , webkitgtk
 , glib-networking
 , librsvg
+, xdg-utils
 , gst_all_1
 }:
 
 stdenv.mkDerivation rec {
   pname = "newsflash";
-  version = "1.4.1";
+  version = "1.5.1";
 
   src = fetchFromGitLab {
     owner = "news-flash";
     repo = "news_flash_gtk";
     rev = version;
-    hash = "sha256-pskmvztKOwutXRHVnW5u68/0DAuV9Gb+Ovp2JbXiMYo=";
+    hash = "sha256-fLG7oYt+gdl3Lwnu6c7VLJWSHCFY5LyNeDKoUNGg3Yw=";
   };
 
   cargoDeps = rustPlatform.fetchCargoTarball {
     inherit src;
     name = "${pname}-${version}";
-    hash = "sha256-qq8cZplt5YWUwsXUShMDhQm3RGH2kCEBk64x6bOa50E=";
+    hash = "sha256-dQlbK3SfY6p1xinroXz5wcaBbq2LuDM9sMlfJ6ueTTg=";
   };
-
-  # https://github.com/CasualX/obfstr/blob/v0.2.4/build.rs#L5
-  # obfstr 0.2.4 fails to set RUSTC_BOOTSTRAP in its build script because cargo
-  # build scripts are forbidden from setting RUSTC_BOOTSTRAP since rustc 1.52.0
-  # https://github.com/rust-lang/rust/blob/1.52.0/RELEASES.md#compatibility-notes
-  RUSTC_BOOTSTRAP = 1;
 
   patches = [
     # Post install tries to generate an icon cache & update the
@@ -83,6 +78,9 @@ stdenv.mkDerivation rec {
 
     # SVG support for gdk-pixbuf
     librsvg
+
+    # Open links in browser
+    xdg-utils
   ] ++ (with gst_all_1; [
     # Audio & video support for webkitgtk WebView
     gstreamer
@@ -95,6 +93,7 @@ stdenv.mkDerivation rec {
     description = "A modern feed reader designed for the GNOME desktop";
     homepage = "https://gitlab.com/news-flash/news_flash_gtk";
     license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ kira-bruneau ];
+    maintainers = with maintainers; [ kira-bruneau stunkymonkey ];
+    platforms = platforms.unix;
   };
 }

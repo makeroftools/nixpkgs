@@ -7,7 +7,7 @@
 , keybinder3
 , pkg-config
 , python3Packages
-, vala_0_48
+, vala
 , wafHook
 , wrapGAppsHook
 , xfce
@@ -23,7 +23,7 @@ stdenv.mkDerivation rec {
     owner = "xuzhen";
     repo = "xfce4-dockbarx-plugin";
     rev = rev;
-    sha256 = "0s8bljn4ga2hj480j0jwkc0npp8szbmirmcsys791gk32iq4dasn";
+    sha256 = "sha256-VqtGcBRjvpCO9prVHOv6Gt1rAZtcAgkQkVCoR6ykC2k=";
   };
 
   pythonPath = [
@@ -35,7 +35,7 @@ stdenv.mkDerivation rec {
     gobject-introspection
     pkg-config
     python3Packages.wrapPython
-    vala_0_48
+    vala
     wafHook
     wrapGAppsHook
   ];

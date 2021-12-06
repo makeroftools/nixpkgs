@@ -3,24 +3,25 @@
 , fetchFromGitHub
 , substituteAll
 , binutils
-, asciidoc
+, asciidoctor
 , cmake
 , perl
 , zstd
 , bashInteractive
 , xcodebuild
 , makeWrapper
+, nix-update-script
 }:
 
 let ccache = stdenv.mkDerivation rec {
   pname = "ccache";
-  version = "4.3";
+  version = "4.5.1";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-ZBxDTMUZiZJLIYbvACTFwvlss+IZiMjiL0khfM5hFCM=";
+    sha256 = "sha256-AmzfBuase3RDoRVswyIgBnyL5TK0LXEGmYIpDzsCwgs=";
   };
 
   outputs = [ "out" "man" ];
@@ -36,8 +37,14 @@ let ccache = stdenv.mkDerivation rec {
     })
   ];
 
-  nativeBuildInputs = [ asciidoc cmake perl ];
+  nativeBuildInputs = [ asciidoctor cmake perl ];
   buildInputs = [ zstd ];
+
+  cmakeFlags = [
+    # Build system does not autodetect redis library presence.
+    # Requires explicit flag.
+    "-DREDIS_STORAGE_BACKEND=OFF"
+  ];
 
   doCheck = true;
   checkInputs = [
@@ -46,12 +53,18 @@ let ccache = stdenv.mkDerivation rec {
     bashInteractive
   ] ++ lib.optional stdenv.isDarwin xcodebuild;
 
-  checkPhase = ''
+  checkPhase = let
+    badTests = [
+      "test.trim_dir" # flaky on hydra (possibly filesystem-specific?)
+    ] ++ lib.optionals stdenv.isDarwin [
+      "test.basedir"
+      "test.multi_arch"
+      "test.nocpp2"
+    ];
+  in ''
     runHook preCheck
     export HOME=$(mktemp -d)
-    ctest --output-on-failure ${lib.optionalString stdenv.isDarwin ''
-      -E '^(test.nocpp2|test.basedir|test.multi_arch)$'
-    ''}
+    ctest --output-on-failure -E '^(${lib.concatStringsSep "|" badTests})$'
     runHook postCheck
   '';
 
@@ -95,6 +108,10 @@ let ccache = stdenv.mkDerivation rec {
         done
       '';
     };
+  };
+
+  passthru.updateScript = nix-update-script {
+    attrPath = pname;
   };
 
   meta = with lib; {

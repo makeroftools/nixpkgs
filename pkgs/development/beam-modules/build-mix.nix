@@ -4,6 +4,7 @@
 , version
 , src
 , buildInputs ? [ ]
+, nativeBuildInputs ? [ ]
 , beamDeps ? [ ]
 , propagatedBuildInputs ? [ ]
 , postPatch ? ""
@@ -23,15 +24,11 @@ let
 
   pkg = self: stdenv.mkDerivation (attrs // {
     name = "${name}-${version}";
-    inherit version;
-    inherit src;
+    inherit version src;
 
     MIX_ENV = mixEnv;
     MIX_DEBUG = if enableDebugInfo then 1 else 0;
     HEX_OFFLINE = 1;
-
-    # stripping does not have any effect on beam files
-    dontStrip = true;
 
     # add to ERL_LIBS so other modules can find at runtime.
     # http://erlang.org/doc/man/code.html#code-path
@@ -41,8 +38,17 @@ let
       addToSearchPath ERL_LIBS "$1/lib/erlang/lib"
     '';
 
-    buildInputs = buildInputs ++ [ elixir hex ];
+    buildInputs = buildInputs ++ [ ];
+    nativeBuildInputs = nativeBuildInputs ++ [ elixir hex ];
     propagatedBuildInputs = propagatedBuildInputs ++ beamDeps;
+
+    configurePhase = attrs.configurePhase or ''
+      runHook preConfigure
+
+      ${./mix-configure-hook.sh}
+
+      runHook postConfigure
+    '';
 
     buildPhase = attrs.buildPhase or ''
       runHook preBuild
@@ -73,6 +79,10 @@ let
       runHook postInstall
     '';
 
+    # stripping does not have any effect on beam files
+    # it is however needed for dependencies with NIFs like bcrypt for example
+    dontStrip = false;
+
     passthru = {
       packageName = name;
       env = shell self;
@@ -81,3 +91,4 @@ let
   });
 in
 fix pkg
+

@@ -1,41 +1,61 @@
-{ lib, buildGoModule, fetchurl, fetchFromGitHub, nixosTests }:
+{ lib, buildGo117Module, fetchurl, fetchFromGitHub, nixosTests, tzdata, wire }:
 
-buildGoModule rec {
+buildGo117Module rec {
   pname = "grafana";
-  version = "7.5.7";
+  version = "8.3.0";
 
-  excludedPackages = [ "release_publisher" ];
+  excludedPackages = "\\(alert_webhook_listener\\|clean-swagger\\|release_publisher\\|slow_proxy\\|slow_proxy_mac\\|macaron\\)";
 
   src = fetchFromGitHub {
     rev = "v${version}";
     owner = "grafana";
     repo = "grafana";
-    sha256 = "sha256-GTQK02zxOBTE+93vT0zLMhAeZ7F3Cq/0lbvbzwB2QZA=";
+    sha256 = "sha256-I+jfWHkTm11qIm6CdDFOFHs/qR9pswbjAdfejkxZnrQ=";
   };
 
   srcStatic = fetchurl {
     url = "https://dl.grafana.com/oss/release/grafana-${version}.linux-amd64.tar.gz";
-    sha256 = "sha256-IQ7aAuUrNa+bSh5ld6IttujM8AgKUSlu8H7pwzDi164=";
+    sha256 = "sha256-o8uw9VRuK93IbZgcZmFmZ2zbgKdryGbeaPAlQr8wJXw=";
   };
 
-  vendorSha256 = "sha256-AsPRaRLomp090XAKLXLXKm40ESPO4im9qi6VLpLYRQU=";
+  vendorSha256 = "sha256-aS9yz0JODZtichaIkiBJLiMjbjGY93eSYwuactbRqOY=";
 
-  # grafana-aws-sdk is specified with two versions which causes a problem later:
-  # go: inconsistent vendoring in /build/source:
-  #  github.com/grafana/grafana-aws-sdk@v0.3.0: is explicitly required in go.mod, but not marked as explicit in vendor/modules.txt
-  # Remove the older one here to fix this.
-  postPatch = ''
-    substituteInPlace go.mod \
-      --replace 'github.com/grafana/grafana-aws-sdk v0.3.0' ""
+  nativeBuildInputs = [ wire ];
 
-    substituteInPlace pkg/cmd/grafana-server/main.go \
-      --replace 'var version = "5.0.0"'  'var version = "${version}"'
+  preBuild = ''
+    # Generate DI code that's required to compile the package.
+    # From https://github.com/grafana/grafana/blob/v8.2.3/Makefile#L33-L35
+    wire gen -tags oss ./pkg/server
+    wire gen -tags oss ./pkg/cmd/grafana-cli/runner
+
+    # The testcase makes an API call against grafana.com:
+    #
+    # [...]
+    # grafana> t=2021-12-02T14:24:58+0000 lvl=dbug msg="Failed to get latest.json repo from github.com" logger=update.checker error="Get \"https://raw.githubusercontent.com/grafana/grafana/main/latest.json\": dial tcp: lookup raw.githubusercontent.com on [::1]:53: read udp [::1]:36391->[::1]:53: read: connection refused"
+    # grafana> t=2021-12-02T14:24:58+0000 lvl=dbug msg="Failed to get plugins repo from grafana.com" logger=plugin.manager error="Get \"https://grafana.com/api/plugins/versioncheck?slugIn=&grafanaVersion=\": dial tcp: lookup grafana.com on [::1]:53: read udp [::1]:41796->[::1]:53: read: connection refused"
+    sed -i -e '/Request is not forbidden if from an admin/a t.Skip();' pkg/tests/api/plugins/api_plugins_test.go
+
+    # Skip a flaky test (https://github.com/NixOS/nixpkgs/pull/126928#issuecomment-861424128)
+    sed -i -e '/it should change folder successfully and return correct result/{N;s/$/\nt.Skip();/}'\
+      pkg/services/libraryelements/libraryelements_patch_test.go
+
+
+    # main module (github.com/grafana/grafana) does not contain package github.com/grafana/grafana/scripts/go
+    rm -r scripts/go
   '';
 
-  # main module (github.com/grafana/grafana) does not contain package github.com/grafana/grafana/scripts/go
-  # main module (github.com/grafana/grafana) does not contain package github.com/grafana/grafana/dashboard-schemas
-  preBuild = ''
-    rm -r dashboard-schemas scripts/go
+  ldflags = [
+    "-s" "-w" "-X main.version=${version}"
+  ];
+
+  # Tests start http servers which need to bind to local addresses:
+  # panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted
+  __darwinAllowLocalNetworking = true;
+
+  # On Darwin, files under /usr/share/zoneinfo exist, but fail to open in sandbox:
+  # TestValueAsTimezone: date_formats_test.go:33: Invalid has err for input "Europe/Amsterdam": operation not permitted
+  preCheck = ''
+    export ZONEINFO=${tzdata}/share/zoneinfo
   '';
 
   postInstall = ''
@@ -48,9 +68,10 @@ buildGoModule rec {
 
   meta = with lib; {
     description = "Gorgeous metric viz, dashboards & editors for Graphite, InfluxDB & OpenTSDB";
-    license = licenses.asl20;
+    license = licenses.agpl3;
     homepage = "https://grafana.com";
     maintainers = with maintainers; [ offline fpletz willibutz globin ma27 Frostman ];
-    platforms = platforms.linux;
+    platforms = platforms.linux ++ platforms.darwin;
+    mainProgram = "grafana-server";
   };
 }

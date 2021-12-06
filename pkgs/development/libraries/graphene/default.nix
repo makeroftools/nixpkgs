@@ -12,13 +12,15 @@
 , docbook_xsl
 , docbook_xml_dtd_43
 , gobject-introspection
+, makeWrapper
 }:
 
 stdenv.mkDerivation rec {
   pname = "graphene";
   version = "1.10.6";
 
-  outputs = [ "out" "devdoc" "installedTests" ];
+  outputs = [ "out" ]
+    ++ lib.optionals (stdenv.buildPlatform == stdenv.hostPlatform) [ "devdoc" "installedTests" ];
 
   src = fetchFromGitHub {
     owner = "ebassi";
@@ -32,6 +34,10 @@ stdenv.mkDerivation rec {
     ./0001-meson-add-options-for-tests-installation-dirs.patch
   ];
 
+  depsBuildBuild = [
+    pkg-config
+  ];
+
   nativeBuildInputs = [
     docbook_xml_dtd_43
     docbook_xsl
@@ -41,11 +47,11 @@ stdenv.mkDerivation rec {
     pkg-config
     gobject-introspection
     python3
+    makeWrapper
   ];
 
   buildInputs = [
     glib
-    gobject-introspection
   ];
 
   checkInputs = [
@@ -53,7 +59,8 @@ stdenv.mkDerivation rec {
   ];
 
   mesonFlags = [
-    "-Dgtk_doc=true"
+    "-Dgtk_doc=${lib.boolToString (stdenv.buildPlatform == stdenv.hostPlatform)}"
+    "-Dintrospection=${if (stdenv.buildPlatform == stdenv.hostPlatform) then "enabled" else "disabled"}"
     "-Dinstalled_test_datadir=${placeholder "installedTests"}/share"
     "-Dinstalled_test_bindir=${placeholder "installedTests"}/libexec"
   ];
@@ -62,6 +69,17 @@ stdenv.mkDerivation rec {
 
   postPatch = ''
     patchShebangs tests/gen-installed-test.py
+  '' + lib.optionalString (stdenv.buildPlatform == stdenv.hostPlatform) ''
+    PATH=${python3.withPackages (pp: [ pp.pygobject3 pp.tappy ])}/bin:$PATH patchShebangs tests/introspection.py
+  '';
+
+  postFixup = let
+    introspectionPy = "${placeholder "installedTests"}/libexec/installed-tests/graphene-1.0/introspection.py";
+  in ''
+    if [ -x '${introspectionPy}' ] ; then
+      wrapProgram '${introspectionPy}' \
+        --prefix GI_TYPELIB_PATH : "$out/lib/girepository-1.0"
+    fi
   '';
 
   passthru = {

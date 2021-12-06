@@ -3,7 +3,9 @@
 , bundlerEnv, ruby
 , nodejs
 , nodePackages
+, python3
 , python3Packages
+, callPackage
 }:
 with lib;
 
@@ -16,7 +18,7 @@ let
     , wrapperArgs ? []
     , manifestRc ? null
     , withPython2 ? false
-    , withPython3 ? true,  python3Env ? null
+    , withPython3 ? true,  python3Env ? python3
     , withNodeJs ? false
     , rubyEnv ? null
     , vimAlias ? false
@@ -27,23 +29,24 @@ let
     # set to false if you want to control where to save the generated config
     # (e.g., in ~/.config/init.vim or project/.nvimrc)
     , wrapRc ? true
+    , neovimRcContent ? ""
     , ...
   }@args:
   let
 
     wrapperArgsStr = if isString wrapperArgs then wrapperArgs else lib.escapeShellArgs wrapperArgs;
 
-  # If configure != {}, we can't generate the rplugin.vim file with e.g
-  # NVIM_SYSTEM_RPLUGIN_MANIFEST *and* NVIM_RPLUGIN_MANIFEST env vars set in
-  # the wrapper. That's why only when configure != {} (tested both here and
-  # when postBuild is evaluated), we call makeWrapper once to generate a
-  # wrapper with most arguments we need, excluding those that cause problems to
-  # generate rplugin.vim, but still required for the final wrapper.
-  finalMakeWrapperArgs =
-    [ "${neovim}/bin/nvim" "${placeholder "out"}/bin/nvim" ]
-    ++ [ "--set" "NVIM_SYSTEM_RPLUGIN_MANIFEST" "${placeholder "out"}/rplugin.vim" ]
-    ++ optionals wrapRc [ "--add-flags" "-u ${writeText "init.vim" args.neovimRcContent}" ]
-    ;
+    # If configure != {}, we can't generate the rplugin.vim file with e.g
+    # NVIM_SYSTEM_RPLUGIN_MANIFEST *and* NVIM_RPLUGIN_MANIFEST env vars set in
+    # the wrapper. That's why only when configure != {} (tested both here and
+    # when postBuild is evaluated), we call makeWrapper once to generate a
+    # wrapper with most arguments we need, excluding those that cause problems to
+    # generate rplugin.vim, but still required for the final wrapper.
+    finalMakeWrapperArgs =
+      [ "${neovim}/bin/nvim" "${placeholder "out"}/bin/nvim" ]
+      ++ [ "--set" "NVIM_SYSTEM_RPLUGIN_MANIFEST" "${placeholder "out"}/rplugin.vim" ]
+      ++ optionals wrapRc [ "--add-flags" "-u ${writeText "init.vim" neovimRcContent}" ]
+      ;
   in
   assert withPython2 -> throw "Python2 support has been removed from the neovim wrapper, please remove withPython2 and python2Env.";
 
@@ -57,7 +60,7 @@ let
           --replace 'Name=Neovim' 'Name=WrappedNeovim'
       ''
       + optionalString withPython3 ''
-        makeWrapper ${python3Env}/bin/python3 $out/bin/nvim-python3 --unset PYTHONPATH
+        makeWrapper ${python3Env.interpreter} $out/bin/nvim-python3 --unset PYTHONPATH
       ''
       + optionalString (rubyEnv != null) ''
         ln -s ${rubyEnv}/bin/neovim-ruby-host $out/bin/nvim-ruby
@@ -116,14 +119,19 @@ let
     preferLocalBuild = true;
 
     nativeBuildInputs = [ makeWrapper ];
-    passthru = { unwrapped = neovim; };
+    passthru = {
+      unwrapped = neovim;
+      initRc = neovimRcContent;
+
+      tests = callPackage ./tests.nix {
+      };
+    };
 
     meta = neovim.meta // {
       # To prevent builds on hydra
       hydraPlatforms = [];
       # prefer wrapper over the package
       priority = (neovim.meta.priority or 0) - 1;
-      mainProgram = "nvim";
     };
   };
 in

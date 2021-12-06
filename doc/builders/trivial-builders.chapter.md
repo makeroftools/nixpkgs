@@ -37,7 +37,7 @@ This works just like `runCommand`. The only difference is that it also provides 
 
 Variant of `runCommand` that forces the derivation to be built locally, it is not substituted. This is intended for very cheap commands (<1s execution time). It saves on the network roundrip and can speed up a build.
 
-::: note
+::: {.note}
 This sets [`allowSubstitutes` to `false`](https://nixos.org/nix/manual/#adv-attr-allowSubstitutes), so only use `runCommandLocal` if you are certain the user will always have a builder for the `system` of the derivation. This should be true for most trivial use cases (e.g. just copying some files to a different location or adding symlinks), because there the `system` is usually the same as `builtins.currentSystem`.
 :::
 
@@ -46,6 +46,28 @@ This sets [`allowSubstitutes` to `false`](https://nixos.org/nix/manual/#adv-attr
 These functions write `text` to the Nix store. This is useful for creating scripts from Nix expressions. `writeTextFile` takes an attribute set and expects two arguments, `name` and `text`. `name` corresponds to the name used in the Nix store path. `text` will be the contents of the file. You can also set `executable` to true to make this file have the executable bit set.
 
 Many more commands wrap `writeTextFile` including `writeText`, `writeTextDir`, `writeScript`, and `writeScriptBin`. These are convenience functions over `writeTextFile`.
+
+## `writeShellApplication` {#trivial-builder-writeShellApplication}
+
+This can be used to easily produce a shell script that has some dependencies (`runtimeInputs`). It automatically sets the `PATH` of the script to contain all of the listed inputs, sets some sanity shellopts (`errexit`, `nounset`, `pipefail`), and checks the resulting script with [`shellcheck`](https://github.com/koalaman/shellcheck).
+
+For example, look at the following code:
+
+```nix
+writeShellApplication {
+  name = "show-nixos-org";
+
+  runtimeInputs = [ curl w3m ];
+
+  text = ''
+    curl -s 'https://nixos.org' | w3m -dump -T text/html
+  '';
+}
+```
+
+Unlike with normal `writeShellScriptBin`, there is no need to manually write out `${curl}/bin/curl`, setting the PATH
+was handled by `writeShellApplication`. Moreover, the script is being checked with `shellcheck` for more strict
+validation.
 
 ## `symlinkJoin` {#trivial-builder-symlinkJoin}
 

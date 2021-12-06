@@ -1,21 +1,40 @@
 { lib
+, pkgs
 , python3
 , fetchFromGitHub
+, fetchpatch
 , platformio
 , esptool
 , git
 }:
 
-python3.pkgs.buildPythonApplication rec {
+let
+  python = python3.override {
+    packageOverrides = self: super: {
+      esphome-dashboard = pkgs.callPackage ./dashboard.nix {};
+    };
+  };
+in
+with python.pkgs; buildPythonApplication rec {
   pname = "esphome";
-  version = "1.18.0";
+  version = "2021.11.4";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
-    rev = "v${version}";
-    sha256 = "1vz3d59wfqssfv1kvd4minlxibr0id06xfyg8956w9s3b22jc5vq";
+    rev = version;
+    sha256 = "sha256-hPnng3Jkb2FucEOar/MIjvWHKbT3NNxEn6CIr3sd1Ng=";
   };
+
+  patches = [
+    # fix missing write permissions on src files before modifing them
+    ./fix-src-permissions.patch
+    (fetchpatch {
+      url = "https://github.com/esphome/esphome/commit/fbe1bca1b9896ba8c8b754c5a4faf790bffd887b.patch";
+      sha256 = "sha256-Iyc79iL2YkLGD81TbFK3GaCY2L9nTE9mKz6MQSNQWr8=";
+    })
+  ];
 
   postPatch = ''
     # remove all version pinning (E.g tornado==5.1.1 -> tornado)
@@ -23,12 +42,6 @@ python3.pkgs.buildPythonApplication rec {
 
     # drop coverage testing
     sed -i '/--cov/d' pytest.ini
-
-    # migrate use of hypothesis internals to be compatible with hypothesis>=5.32.1
-    # https://github.com/esphome/issues/issues/2021
-    substituteInPlace tests/unit_tests/strategies.py --replace \
-      "@st.defines_strategy_with_reusable_values" \
-      "@st.defines_strategy(force_reusable_values=True)"
   '';
 
   # Remove esptool and platformio from requirements
@@ -40,17 +53,21 @@ python3.pkgs.buildPythonApplication rec {
   # They have validation functions like:
   # - validate_cryptography_installed
   # - validate_pillow_installed
-  propagatedBuildInputs = with python3.pkgs; [
+  propagatedBuildInputs = [
+    aioesphomeapi
     click
     colorama
     cryptography
+    esphome-dashboard
     ifaddr
+    kconfiglib
     paho-mqtt
     pillow
     protobuf
     pyserial
     pyyaml
     tornado
+    tzdata
     tzlocal
     voluptuous
   ];
@@ -63,17 +80,29 @@ python3.pkgs.buildPythonApplication rec {
     "--set ESPHOME_USE_SUBPROCESS ''"
   ];
 
-  checkInputs = with python3.pkgs; [
+  checkInputs = [
     hypothesis
     mock
+    pytest-asyncio
     pytest-mock
     pytest-sugar
     pytestCheckHook
   ];
 
+  disabledTestPaths = [
+    # requires hypothesis 5.49, we have 6.x
+    # ImportError: cannot import name 'ip_addresses' from 'hypothesis.provisional'
+    "tests/unit_tests/test_core.py"
+    "tests/unit_tests/test_helpers.py"
+  ];
+
   postCheck = ''
     $out/bin/esphome --help > /dev/null
   '';
+
+  passthru = {
+    dashboard = esphome-dashboard;
+  };
 
   meta = with lib; {
     description = "Make creating custom firmwares for ESP32/ESP8266 super easy";

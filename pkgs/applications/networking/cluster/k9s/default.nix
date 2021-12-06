@@ -2,30 +2,31 @@
 
 buildGoModule rec {
   pname = "k9s";
-  version = "0.24.8";
+  version = "0.25.7";
 
   src = fetchFromGitHub {
     owner  = "derailed";
     repo   = "k9s";
     rev    = "v${version}";
-    sha256 = "sha256-6RGm2uiYvsdpWdhNwDTw4z1O6uNErkWTuyOiwKIvXOY=";
+    sha256 = "sha256-CFXPo8dpefrrBxCGpcGtZfLdfMYCBL/eQhHqZggK/yA=";
   };
 
-  buildFlagsArray = ''
-    -ldflags=
-      -s -w
-      -X github.com/derailed/k9s/cmd.version=${version}
-      -X github.com/derailed/k9s/cmd.commit=${src.rev}
-  '';
+  ldflags = [
+    "-s" "-w"
+    "-X github.com/derailed/k9s/cmd.version=${version}"
+    "-X github.com/derailed/k9s/cmd.commit=${src.rev}"
+  ];
 
-  vendorSha256 = "sha256-lzxGTubm+qQes5QKaamfmSkXs4qquHHjIhts8YmKlYI=";
+  vendorSha256 = "sha256-v4cd+f2GSE2ad0wWrW9x6/U6RREhFV83wVNFUMfWaA4=";
 
-  doCheck = false;
+  preCheck = "export HOME=$(mktemp -d)";
+
+  doCheck = true;
 
   meta = with lib; {
     description = "Kubernetes CLI To Manage Your Clusters In Style";
     homepage = "https://github.com/derailed/k9s";
     license = licenses.asl20;
-    maintainers = with maintainers; [ Gonzih markus1189 ];
+    maintainers = with maintainers; [ Gonzih markus1189 bryanasdev000 ];
   };
 }

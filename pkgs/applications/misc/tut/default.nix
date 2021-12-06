@@ -2,16 +2,16 @@
 
 buildGoModule rec {
   pname = "tut";
-  version = "0.0.17";
+  version = "0.0.41";
 
   src = fetchFromGitHub {
     owner = "RasmusLindroth";
     repo = pname;
     rev = version;
-    sha256 = "0g4kbprsdjk2lbx81azdvz8kkhyk370id3622xxssr894v0i7iwj";
+    sha256 = "sha256-13d3EE/rswcHRALUfL46qpKYJUDwGiou5kUz+nCC8VQ=";
   };
 
-  vendorSha256 = "1kf7ynmxrzvhl028b4nbz9h9v9x5srarsbynpgpp4vicmxqlvrmh";
+  vendorSha256 = "sha256-RtvzQvZIFdLo24U9IWcoL9qnf4/q/+1UCrb7dcRKEIE=";
 
   meta = with lib; {
     description = "A TUI for Mastodon with vim inspired keys";

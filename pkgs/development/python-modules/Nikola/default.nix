@@ -3,7 +3,7 @@
 , Babel
 , blinker
 , buildPythonPackage
-, dateutil
+, python-dateutil
 , docutils
 , doit
 , fetchPypi
@@ -30,7 +30,7 @@
 , pytestCheckHook
 , pythonOlder
 , requests
-, ruamel_yaml
+, ruamel-yaml
 , stdenv
 , toml
 , typogrify
@@ -53,7 +53,7 @@ buildPythonPackage rec {
     aiohttp
     Babel
     blinker
-    dateutil
+    python-dateutil
     docutils
     doit
     ghp-import
@@ -75,7 +75,7 @@ buildPythonPackage rec {
     pyphen
     PyRSS2Gen
     requests
-    ruamel_yaml
+    ruamel-yaml
     toml
     typogrify
     unidecode
