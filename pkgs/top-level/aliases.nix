@@ -296,6 +296,7 @@ mapAliases ({
     svn_all_fast_export = svn-all-fast-export;
     topGit = top-git;
   };
+  gitin = throw "gitin has been remove because it was unmaintained and depended on an insecure version of libgit2"; # added 2021-12-07
   glib_networking = glib-networking; # added 2018-02-25
   gmailieer = lieer; # added 2020-04-19
   gmvault = throw "gmvault has been removed because it is unmaintained, mostly broken, and insecure"; # added 2021-03-08
@@ -360,6 +361,7 @@ mapAliases ({
   hepmc = hepmc2; # added 2019-08-05
   hexen = throw "hexen (SDL port) has been removed: abandoned by upstream."; # added 2019-12-11
   hicolor_icon_theme = hicolor-icon-theme; # added 2018-02-25
+  holochain-go = throw "holochain-go was abandoned by upstream"; # added 2022-01-01
   ht-rust = xh; # added 2021-02-13
   htmlTidy = html-tidy;  # added 2014-12-06
   hydra-flakes = throw "hydra-flakes: Flakes support has been merged into Hydra's master. Please use `hydra-unstable` now."; # added 2020-04-06
@@ -383,6 +385,7 @@ mapAliases ({
   jbuilder = dune_1; # added 2018-09-09
   jikes = throw "jikes was deprecated on 2019-10-07: abandoned by upstream";
   joseki = apache-jena-fuseki; # added 2016-02-28
+  journalbeat7 = throw "journalbeat has been removed upstream. Use filebeat with the journald input instead.";
   jvmci8 = throw "graalvm8 and its tools were deprecated in favor of graalvm8-ce"; # added 2021-10-15
   json_glib = json-glib; # added 2018-02-25
   kafkacat = kcat; # added 2021-10-07
@@ -416,6 +419,7 @@ mapAliases ({
   kerberos = libkrb5; # moved from top-level 2021-03-14
   keymon = throw "keymon has been removed from nixpkgs, as it's abandoned and archived."; # added 2019-12-10
   kramdown-rfc2629 = rubyPackages.kramdown-rfc2629; # added 2021-03-23
+  krita-beta = krita; # moved from top-level 2021-12-23
   kvm = qemu_kvm; # added 2018-04-25
   latinmodern-math = lmmath;
   letsencrypt = certbot; # added 2016-05-16
@@ -466,6 +470,7 @@ mapAliases ({
   libwnck3 = libwnck;
   lilypond-unstable = lilypond; # added 2021-03-11
   links = links2; # added 2016-01-31
+  linuxband = throw "linuxband has been removed from nixpkgs, as it's abandoned upstream."; # added 2021-12-09
   linux_rpi0 = linuxKernel.kernels.linux_rpi1;
   linuxPackages_rpi0 = linuxKernel.packages.linux_rpi1;
   linuxPackages_rt_5_4 = linuxKernel.packages.linux_rt_5_4;
@@ -481,7 +486,6 @@ mapAliases ({
   linuxPackages_4_19 = linuxKernel.packages.linux_4_19;
   linuxPackages_5_4 = linuxKernel.packages.linux_5_4;
   linuxPackages_5_10 = linuxKernel.packages.linux_5_10;
-  linuxPackages_5_14 = linuxKernel.packages.linux_5_14;
   linuxPackages_5_15 = linuxKernel.packages.linux_5_15;
 
   linux_mptcp_95 = linuxKernel.kernels.linux_mptcp_95;
@@ -497,7 +501,6 @@ mapAliases ({
   linux-rt_5_4 = linuxKernel.kernels.linux_rt_5_4;
   linux_5_10 = linuxKernel.kernels.linux_5_10;
   linux-rt_5_10 = linuxKernel.kernels.linux_rt_5_10;
-  linux_5_14 = linuxKernel.kernels.linux_5_14;
   linux_5_15 = linuxKernel.kernels.linux_5_15;
 
   # added 2020-04-04
@@ -721,6 +724,7 @@ mapAliases ({
   polarssl = mbedtls; # added 2018-04-25
   poppler_qt5 = libsForQt5.poppler;  # added 2015-12-19
   postgresql96 = postgresql_9_6;
+  postgresql_9_6 = throw "postgresql_9_6 has been removed from nixpkgs, as this version is no longer supported by upstream"; # added 2021-12-03
   # postgresql plugins
   pgjwt = postgresqlPackages.pgjwt;
   pg_repack = postgresqlPackages.pg_repack;
@@ -767,6 +771,7 @@ mapAliases ({
   qcsxcad = libsForQt5.qcsxcad;  # added 2020-11-05
   qmk_firmware = throw "qmk_firmware has been removed because it was broken"; # added 2021-04-02
   qr-filetransfer = throw ''"qr-filetransfer" has been renamed to "qrcp"''; # added 2020-12-02
+  qt5ct = libsForQt5.qt5ct; # added 2021-12-27
   quake3game = ioquake3; # added 2016-01-14
   quilter = throw "quilter has been removed from nixpkgs, as it was unmaintained."; # added 2021-08-03
   qvim = throw "qvim has been removed."; # added 2020-08-31
@@ -799,6 +804,7 @@ mapAliases ({
   ring-daemon = jami-daemon; # added 2021-10-26
   radare2-cutter = cutter; # added 2021-03-30
   redkite = throw "redkite was archived by upstream"; # added 2021-04-12
+  redshift-wlr = throw "redshift-wlr has been replaced by gammastep"; # added 2021-12-25
   retroArchCores = throw "retroArchCores has been removed. Please use overrides instead, e.g.: `retroarch.override { cores = with libretro; [ ... ]; }`"; # added 2021-11-19
   rkt = throw "rkt was archived by upstream"; # added 2020-05-16
   rpiboot-unstable = rpiboot; # added 2021-07-30
@@ -838,6 +844,7 @@ mapAliases ({
   scaff = throw "scaff is deprecated - replaced by https://gitlab.com/jD91mZM2/inc (not in nixpkgs yet)"; # added 2020-03-01
   scim = sc-im; # added 2016-01-22
   scollector = bosun; # added 2018-04-25
+  scyther = throw "scyther has been removed since it currently only supports Python 2, see https://github.com/cascremers/scyther/issues/20"; # added 2021-10-07
   sdlmame = mame; # added 2019-10-30
   seeks = throw "seeks has been removed from nixpkgs, as it was unmaintained"; # added 2020-06-21
   seg3d = throw "seg3d has been removed from nixpkgs (2019-11-10)";
@@ -929,7 +936,8 @@ mapAliases ({
   telepathy_salut = telepathy-salut; # added 2018-02-25
   telnet = inetutils; # added 2018-05-15
   terminus = throw "terminus has been removed, it was unmaintained in nixpkgs"; # added 2021-08-21
-  terraform_1_0_0 = terraform_1_0; # added 2021-06-15
+  terraform_1_0_0 = throw "terraform_1_0_0 has been renamed to terraform_1"; # added 2021-06-15
+  terraform_1_0 = throw "terraform_1_0 has been renamed to terraform_1"; # added 2021-12-08
   terraform-provider-ibm = terraform-providers.ibm; # added 2018-09-28
   terraform-provider-libvirt = terraform-providers.libvirt; # added 2018-09-28
   terraform-provider-lxd = terraform-providers.lxd; # added 2020-03-16

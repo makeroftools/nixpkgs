@@ -650,7 +650,6 @@ dont-distribute-packages:
  - cakyrespa
  - cal3d-examples
  - cal3d-opengl
- - calamity-commands
  - calc
  - calculator
  - caldims
@@ -930,6 +929,7 @@ dont-distribute-packages:
  - delta
  - delta-h
  - dep-t-advice
+ - dep-t-dynamic
  - dependent-literals-plugin
  - dependent-state
  - dephd
@@ -1087,6 +1087,7 @@ dont-distribute-packages:
  - falling-turnip
  - fallingblocks
  - family-tree
+ - fast-bech32
  - fastirc
  - fault-tree
  - fbrnch
@@ -1514,6 +1515,7 @@ dont-distribute-packages:
  - hedgehog-gen-json
  - hedis-pile
  - heist-aeson
+ - helic
  - helics
  - helics-wai
  - helium
@@ -1574,7 +1576,7 @@ dont-distribute-packages:
  - hmeap
  - hmeap-utils
  - hmep
- - hmm-lapack_0_4_1
+ - hmm-lapack_0_5
  - hmt
  - hmt-diagrams
  - hnormalise
@@ -1920,7 +1922,7 @@ dont-distribute-packages:
  - language-python-colour
  - language-qux
  - language-spelling
- - lapack_0_4
+ - lapack_0_5
  - lat
  - latex-formulae-hakyll
  - latex-formulae-pandoc
@@ -2241,7 +2243,6 @@ dont-distribute-packages:
  - nomyx-language
  - nomyx-library
  - nomyx-server
- - notifications-tray-icon
  - notmuch-haskell
  - notmuch-web
  - numeric-ode
@@ -2250,7 +2251,9 @@ dont-distribute-packages:
  - numhask-histogram
  - numhask-range
  - numhask-test
+ - nyan
  - nymphaea
+ - oath
  - obd
  - obdd
  - oberon0
@@ -2275,8 +2278,6 @@ dont-distribute-packages:
  - openpgp-Crypto
  - openpgp-crypto-api
  - openssh-github-keys
- - opentracing-jaeger
- - opentracing-zipkin-v1
  - optima-for-hasql
  - optimal-blocks
  - optimusprime
@@ -2378,18 +2379,9 @@ dont-distribute-packages:
  - polh-lexicon
  - polydata
  - polysemy-RandomFu
- - polysemy-check
- - polysemy-conc
- - polysemy-http
- - polysemy-log
  - polysemy-log-co
- - polysemy-log-di
  - polysemy-methodology-co-log
  - polysemy-optics
- - polysemy-process
- - polysemy-readline
- - polysemy-resume
- - polysemy-webserver
  - polyseq
  - polytypeable-utils
  - pomodoro
@@ -2696,6 +2688,7 @@ dont-distribute-packages:
  - scp-streams
  - scrabble-bot
  - scrapbook
+ - scroll
  - sde-solver
  - seakale-postgresql
  - seakale-tests
@@ -2729,7 +2722,6 @@ dont-distribute-packages:
  - servant-ede
  - servant-event-stream
  - servant-examples
- - servant-github-webhook
  - servant-http2-client
  - servant-matrix-param
  - servant-polysemy
@@ -3084,6 +3076,7 @@ dont-distribute-packages:
  - typed-encoding-encoding
  - typed-spreadsheet
  - typed-streams
+ - typelet
  - typelevel
  - typelevel-rewrite-rules
  - typescript-docs

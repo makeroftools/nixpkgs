@@ -54,10 +54,10 @@ in
 
     systemd.packages = [ cfg.package ];
 
-    services.udev.packages = [ pkgs.libmtp.bin ];
+    services.udev.packages = [ pkgs.libmtp ];
 
     # Needed for unwrapped applications
-    environment.sessionVariables.GIO_EXTRA_MODULES = [ "${cfg.package}/lib/gio/modules" ];
+    environment.variables.GIO_EXTRA_MODULES = [ "${cfg.package}/lib/gio/modules" ];
 
   };
 

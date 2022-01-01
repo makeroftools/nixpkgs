@@ -45,11 +45,13 @@
   ./hardware/ckb-next.nix
   ./hardware/cpu/amd-microcode.nix
   ./hardware/cpu/intel-microcode.nix
+  ./hardware/cpu/intel-sgx.nix
   ./hardware/corectrl.nix
   ./hardware/digitalbitbox.nix
   ./hardware/device-tree.nix
   ./hardware/gkraken.nix
   ./hardware/flirc.nix
+  ./hardware/gpgsmartcards.nix
   ./hardware/i2c.nix
   ./hardware/sensor/hddtemp.nix
   ./hardware/sensor/iio.nix
@@ -106,6 +108,8 @@
   ./misc/lib.nix
   ./misc/label.nix
   ./misc/locate.nix
+  ./misc/man-db.nix
+  ./misc/mandoc.nix
   ./misc/meta.nix
   ./misc/nixpkgs.nix
   ./misc/passthru.nix
@@ -294,7 +298,6 @@
   ./services/cluster/hadoop/default.nix
   ./services/cluster/k3s/default.nix
   ./services/cluster/kubernetes/addons/dns.nix
-  ./services/cluster/kubernetes/addons/dashboard.nix
   ./services/cluster/kubernetes/addon-manager.nix
   ./services/cluster/kubernetes/apiserver.nix
   ./services/cluster/kubernetes/controller-manager.nix
@@ -446,6 +449,7 @@
   ./services/hardware/xow.nix
   ./services/logging/SystemdJournal2Gelf.nix
   ./services/logging/awstats.nix
+  ./services/logging/filebeat.nix
   ./services/logging/fluentd.nix
   ./services/logging/graylog.nix
   ./services/logging/heartbeat.nix
@@ -467,6 +471,7 @@
   ./services/mail/dovecot.nix
   ./services/mail/dspam.nix
   ./services/mail/exim.nix
+  ./services/mail/maddy.nix
   ./services/mail/mail.nix
   ./services/mail/mailcatcher.nix
   ./services/mail/mailhog.nix
@@ -926,6 +931,7 @@
   ./services/search/kibana.nix
   ./services/search/meilisearch.nix
   ./services/search/solr.nix
+  ./services/security/aesmd.nix
   ./services/security/certmgr.nix
   ./services/security/cfssl.nix
   ./services/security/clamav.nix
@@ -1021,8 +1027,8 @@
   ./services/web-apps/plantuml-server.nix
   ./services/web-apps/plausible.nix
   ./services/web-apps/pgpkeyserver-lite.nix
+  ./services/web-apps/powerdns-admin.nix
   ./services/web-apps/matomo.nix
-  ./services/web-apps/moinmoin.nix
   ./services/web-apps/openwebrx.nix
   ./services/web-apps/restya-board.nix
   ./services/web-apps/sogo.nix
@@ -1181,6 +1187,7 @@
   ./virtualisation/oci-containers.nix
   ./virtualisation/cri-o.nix
   ./virtualisation/docker.nix
+  ./virtualisation/docker-rootless.nix
   ./virtualisation/ecs-agent.nix
   ./virtualisation/libvirtd.nix
   ./virtualisation/lxc.nix
@@ -1191,8 +1198,7 @@
   ./virtualisation/kvmgt.nix
   ./virtualisation/openvswitch.nix
   ./virtualisation/parallels-guest.nix
-  ./virtualisation/podman.nix
-  ./virtualisation/podman-network-socket-ghostunnel.nix
+  ./virtualisation/podman/default.nix
   ./virtualisation/qemu-guest-agent.nix
   ./virtualisation/railcar.nix
   ./virtualisation/spice-usb-redirection.nix
